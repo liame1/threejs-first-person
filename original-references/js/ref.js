@@ -1,6 +1,7 @@
-import * as THREE from 'https://cdn.skypack.dev/three@0.136';
+import * as THREE from 'three';
 
 import {FirstPersonControls} from 'https://cdn.skypack.dev/three@0.136/examples/jsm/controls/FirstPersonControls.js';
+import { GLTFLoader } from 'https://unpkg.com/three@0.162.0/examples/jsm/loaders/GLTFLoader.js'; // to load 3d models
 
 
 const KEYS = {
@@ -52,6 +53,7 @@ class InputController {
   }
 
   onMouseDown_(e) {
+    // document.documentElement.style.cursor = 'none';
     this.onMouseMove_(e);
 
     switch (e.button) {
@@ -272,14 +274,14 @@ class FirstPersonCameraDemo {
   }
 
   initializeScene_() {
-    const loader = new THREE.CubeTextureLoader();
-    const texture = loader.load([
+    const skyboxLoader = new THREE.CubeTextureLoader();
+    const texture = skyboxLoader.load([
       'assets/skybox/Daylight Box_Front.bmp',
-    'assets/skybox/Daylight Box_Back.bmp',
-    'assets/skybox/Daylight Box_Top.bmp',
-    'assets/skybox/Daylight Box_Bottom.bmp',
-    'assets/skybox/Daylight Box_Left.bmp',
-    'assets/skybox/Daylight Box_Right.bmp',
+        'assets/skybox/Daylight Box_Back.bmp',
+        'assets/skybox/Daylight Box_Top.bmp',
+        'assets/skybox/Daylight Box_Bottom.bmp',
+        'assets/skybox/Daylight Box_Left.bmp',
+        'assets/skybox/Daylight Box_Right.bmp',
   ]);
 
     texture.encoding = THREE.sRGBEncoding;
@@ -301,7 +303,6 @@ class FirstPersonCameraDemo {
     const materialRed = new THREE.MeshStandardMaterial({ color: 0xff80800 });
 
     //----- CREATE GEOMETRY :
-
 
     const plane = new THREE.Mesh(
         new THREE.PlaneGeometry(100, 100, 10, 10),
@@ -352,6 +353,17 @@ class FirstPersonCameraDemo {
     wall4.castShadow = true;
     wall4.receiveShadow = true;
     this.scene_.add(wall4);
+
+    // ~~~~~~ IMPORT GLTF MODELS :
+
+    const loader = new GLTFLoader(); // to load 3d models
+
+    loader.load('assets/gltf/Red-Drill-gltf-export-03.gltf', function (gltf){
+        const drill = gltf.scene;
+        this.scene_.add( drill );
+        drill.scale.set(1,1,1);
+        
+    })
 
     // Create Box3 for each mesh in the scene so that we can
     // do some easy intersection tests.
