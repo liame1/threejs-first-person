@@ -2,6 +2,7 @@ import * as THREE from 'three';
 
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 import { GLTFLoader } from 'https://unpkg.com/three@0.162.0/examples/jsm/loaders/GLTFLoader.js'; // to load 3d models
+import { Reflector } from 'three/addons/objects/Reflector.js';
 
 let camera, scene, renderer, controls;
 
@@ -129,42 +130,43 @@ function init() {
 
     raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
 
-    // floor
-
+    // ----- Initialize Floor :
     let floorGeometry = new THREE.PlaneGeometry( 2000, 2000, 100, 100 );
     floorGeometry.rotateX( - Math.PI / 2 );
-
-    // vertex displacement
-
     let position = floorGeometry.attributes.position;
 
-    for ( let i = 0, l = position.count; i < l; i ++ ) {
+    const floorMaterial = new THREE.MeshStandardMaterial( { color: 0xad71c790 } );
 
-        vertex.fromBufferAttribute( position, i );
+    
+            // ----- vertex displacement material (STC!):
 
-        vertex.x += Math.random() * 20 - 10;
-        vertex.y += Math.random() * 2;
-        vertex.z += Math.random() * 20 - 10;
+            // for ( let i = 0, l = position.count; i < l; i ++ ) {
 
-        position.setXYZ( i, vertex.x, vertex.y, vertex.z );
+            //     vertex.fromBufferAttribute( position, i );
 
-    }
+            //     vertex.x += Math.random() * 20 - 10;
+            //     vertex.y += Math.random() * 2;
+            //     vertex.z += Math.random() * 20 - 10;
 
-    floorGeometry = floorGeometry.toNonIndexed(); // ensure each face has unique vertices
+            //     position.setXYZ( i, vertex.x, vertex.y, vertex.z );
 
-    position = floorGeometry.attributes.position;
-    const colorsFloor = [];
+            // }
 
-    for ( let i = 0, l = position.count; i < l; i ++ ) {
+            // floorGeometry = floorGeometry.toNonIndexed(); // ensure each face has unique vertices
 
-        color.setHSL( Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75, THREE.SRGBColorSpace );
-        colorsFloor.push( color.r, color.g, color.b );
+            // position = floorGeometry.attributes.position;
+            // const colorsFloor = [];
 
-    }
+            // for ( let i = 0, l = position.count; i < l; i ++ ) {
 
-    floorGeometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colorsFloor, 3 ) );
+            //     color.setHSL( Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75, THREE.SRGBColorSpace );
+            //     colorsFloor.push( color.r, color.g, color.b );
 
-    const floorMaterial = new THREE.MeshBasicMaterial( { vertexColors: true } );
+            // }
+
+            // floorGeometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colorsFloor, 3 ) );
+
+            // const floorMaterial = new THREE.MeshBasicMaterial( { vertexColors: true } );
 
     const floor = new THREE.Mesh( floorGeometry, floorMaterial );
     scene.add( floor );
