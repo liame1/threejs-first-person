@@ -1,0 +1,66 @@
+/*
+CSS RESETS:
+ Border box reset:
+https://www.paulirish.com/2012/box-sizing-border-box-ftw/
+ 62.5% Fix: https: //www.aleksandrhovhannisyan.com/blog/62-5-percent-font-size-trick/
+*/
+
+html {
+box-sizing: border-box;
+font-size: 62.5%;
+}
+
+*,
+*:before,
+*:after {
+box-sizing: inherit;
+margin: 0;
+padding: 0;
+}
+
+html, 
+body {
+height: 100%;
+font-size: 1.6rem;
+/* same as 16px using 62.5% fix for rem */
+line-height: 1.6;
+}
+
+/* ----- BODY ----- */
+body {
+background: rgb(221, 215, 201);
+margin: 0;
+font-family: 'Open Sans', sans-serif;
+}
+
+/* ----- GRID ----- */
+.grid {
+    display: grid;
+    grid-template-rows: auto auto auto;
+    grid-template-columns: 100%;
+    text-align: center;
+    margin: 1rem;
+}
+
+.row {
+    display: grid;
+    border-bottom: 2px dashed rgb(160, 145, 160);
+    grid-template-columns: 30% 40% 30%;
+    justify-items: center;
+    text-align: center;
+    padding: 1rem;
+}
+
+/* ----- GRID AREA----- */
+
+
+
+/* ----- STYLING ELEMENTS ----- */
+a {
+    font-size: 1rem;
+    text-decoration: none;
+    color: rgb(83, 32, 43);
+}
+
+
+/* ----- CONTENT ----- */
