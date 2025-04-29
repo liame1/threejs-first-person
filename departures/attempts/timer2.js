@@ -2,11 +2,12 @@ const departTimes = document.querySelectorAll('.depart-time');
 let intervals = [];
 
 let time = 5;
+const timerDisplay = document.getElementById('timer');
 
 
 // Start a countdown for each departure
 departTimes.forEach((departTime, index) => {
-  let countdown = 3; // starting from 60 seconds (or whatever you want)
+  let countdown = 3; // starting # of seconds
   
   const interval = setInterval(() => {
     if (countdown <= 0) {
@@ -15,6 +16,7 @@ departTimes.forEach((departTime, index) => {
     } else {
       const minutes = Math.floor(countdown / 60);
       const seconds = countdown % 60;
+      timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
       departTime.textContent = time + "min";
       countdown--;
     }

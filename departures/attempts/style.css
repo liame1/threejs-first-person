@@ -28,7 +28,7 @@ line-height: 1.6;
 
 /* ----- BODY ----- */
 body {
-background: rgb(221, 215, 201);
+background: rgb(219, 231, 231);
 margin: 0;
 font-family: 'Open Sans', sans-serif;
 }
@@ -52,7 +52,12 @@ font-family: 'Open Sans', sans-serif;
 }
 
 /* ----- GRID AREA----- */
-
+.depart-time {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: black;
+    padding: 0.5rem;
+}
 
 
 /* ----- STYLING ELEMENTS ----- */

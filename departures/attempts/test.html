@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Subway Station Departures</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: black;
+      color: #00ffcc;
+    }
+
+    h1 {
+      text-align: center;
+      padding: 1rem;
+      color: #00ffcc;
+    }
+
+    table {
+      width: 90%;
+      margin: 0 auto;
+      border-collapse: collapse;
+      font-size: 1.5rem;
+    }
+
+    th, td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid #00ffcc;
+    }
+
+    th {
+      background-color: #003333;
+      color: #00ffcc;
+    }
+
+    tr:nth-child(even) {
+      background-color: #001f1f;
+    }
+
+    .departing-soon {
+      color: yellow;
+      font-weight: bold;
+    }
+
+    .departed {
+      color: red;
+    }
+
+    button {
+      padding: 0.4rem 1rem;
+      background-color: #006666;
+      border: none;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #00aaaa;
+    }
+  </style>
+</head>
+<body>
+  <h1>Subway Departures - Central Station</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Train</th>
+        <th>Destination</th>
+        <th>Departure</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="schedule">
+      <!-- Rows will be injected by JavaScript -->
+    </tbody>
+  </table>
+
+  <script>
+    const tbody = document.getElementById('schedule');
+    let trainCounter = 5;
+
+    const generateTrain = () => {
+      const destinations = ['Downtown', 'Uptown', 'Airport', 'Harbor Front', 'Tech Park', 'University'];
+      const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      return {
+        train: letters[Math.floor(Math.random() * letters.length)] + trainCounter++,
+        destination: destinations[Math.floor(Math.random() * destinations.length)],
+        departure: 300 + Math.floor(Math.random() * 120) // 5 to 7 minutes
+      };
+    };
+
+    let trains = [
+      { train: 'A1', destination: 'Downtown', departure: 10 },
+      { train: 'B3', destination: 'Uptown', departure: 180 },
+      { train: 'C5', destination: 'Airport', departure: 300 },
+      { train: 'D2', destination: 'Harbor Front', departure: 420 },
+    ];
+
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return `${mins}m ${secs}s`;
+    }
+
+    function renderTable() {
+      tbody.innerHTML = '';
+      trains.forEach((train, index) => {
+        const tr = document.createElement('tr');
+        const status = train.departure <= 0 ? 'Departed' : (train.departure <= 60 ? 'Departing Soon' : 'On Time');
+
+        tr.innerHTML = `
+          <td>${train.train}</td>
+          <td>${train.destination}</td>
+          <td>${train.departure > 0 ? formatTime(train.departure) : '--'}</td>
+          <td class="${status === 'Departed' ? 'departed' : status === 'Departing Soon' ? 'departing-soon' : ''}">${status}</td>
+          <td><button onclick="boardTrain('${train.train}', ${index})">Board</button></td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    function boardTrain(trainId, index) {
+      console.log(`Boarded train ${trainId}. It will leave shortly.`);
+    }
+
+    setInterval(() => {
+      // Update times and remove departed trains
+      trains.forEach(train => {
+        if (train.departure > 0) train.departure--;
+      });
+
+      const departed = trains.filter(t => t.departure <= 0);
+      if (departed.length > 0) {
+        departed.forEach(train => console.log(`Train ${train.train} has departed.`));
+        trains = trains.filter(t => t.departure > 0);
+        // Add new trains for each departed
+        while (trains.length < 4) {
+          trains.push(generateTrain());
+        }
+      }
+
+      renderTable();
+    }, 1000);
+
+    renderTable();
+  </script>
+</body>
+</html>

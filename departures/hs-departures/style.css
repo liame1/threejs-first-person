@@ -1,0 +1,127 @@
+/* Existing CSS resets and common styles */
+/*
+CSS RESETS:
+ Border box reset:
+https://www.paulirish.com/2012/box-sizing-border-box-ftw/
+ 62.5% Fix: https: //www.aleksandrhovhannisyan.com/blog/62-5-percent-font-size-trick/
+*/
+
+html {
+    box-sizing: border-box;
+    font-size: 62.5%;
+}
+    
+*,
+*:before,
+*:after {
+    box-sizing: inherit;
+    margin: 0;
+    padding: 0;
+}
+    
+html, 
+body {
+    height: 100%;
+    font-size: 1.6rem;
+    /* same as 16px using 62.5% fix for rem */
+    line-height: 1.6;
+}
+    
+/* ----- BODY ----- */
+body {
+    background: rgb(219, 231, 231);
+    margin: 0;
+    font-family: 'Open Sans', sans-serif;
+    
+}
+
+/* ----- GRID ----- */
+.grid {
+    display: grid;
+    grid-template-rows: repeat(11, auto);  /* Header + 10 train rows */
+    grid-template-columns: 100%;
+    text-align: center;
+    margin: 1rem;
+    max-height: 90vh;
+}
+    
+.row {
+    display: grid;
+    border-bottom: 2px dashed rgb(160, 145, 160);
+    grid-template-columns: 30% 40% 30%;
+    justify-items: center;
+    align-items: center; /* Add vertical alignment */
+    text-align: center;
+    padding: 0.5rem;
+}
+
+.row a {
+    grid-column: 2;
+    justify-self: center;
+}
+
+/* ----- ANIMATION -----  */
+.new-train {
+    animation: fadeBackground 3s ease;
+}
+    
+@keyframes fadeBackground {
+    0% { background-color: rgba(255, 238, 7, 0.5); }
+    100% { background-color: transparent; }
+}
+    
+/* ----- GRID AREA ----- */
+.depart-time {
+    background-color:rgb(255, 255, 255);
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: rgb(40, 40, 40);
+    padding: 0.5rem;
+}
+    
+/* Color coding for departure times */
+.depart-time[data-time-left="1"] {
+    background-color: rgb(247, 64, 64);
+}
+    
+.depart-time[data-time-left="2"],
+.depart-time[data-time-left="3"] {
+    background-color: rgb(247, 169, 25);
+}
+    
+/* ----- STYLING ELEMENTS ----- */
+a {
+    font-size: 1rem;
+    text-decoration: none;
+    color: rgb(83, 32, 43);
+    word-break: break-word; /* Changed from break-all for better readability */
+    display: inline-block; /* Changed from flex */
+    max-width: 95%; /* Limit width to prevent stretching */
+    text-align: center; /* Center the text inside */
+    overflow: hidden; /* Hide overflow text */
+    text-overflow: ellipsis; /* Show ellipsis for overflow text */
+    padding: 0.3rem; /* Add a bit of padding */
+}
+
+/* Create wrapper for icons to center them vertically */
+.row img {
+    max-width: 2.4rem;
+    max-height: 2.4rem;
+    display: block;
+    margin: 0 auto; 
+}
+
+#timer {
+    font-family: monospace;
+    font-size: 1.6rem;
+    margin-top: 0.5rem;
+}
+    
+#pauseBtn, #boardBtn {
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    border: 1px solid #555;
+    background-color: #f1f1f1;
+    cursor: pointer;
+    font-size: 1rem;
+}
