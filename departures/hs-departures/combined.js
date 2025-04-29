@@ -27,11 +27,12 @@ const trainData = [
 // These variables control how our train board works
 let timerIsRunning = true;     // Is the clock running?
 let playerIsBoarded = false;    // Is the player on a train?
-let countdownTimer = 3;        // Seconds counter (resets to 3)
+let countdownTimer = 5;        // Seconds counter (resets to 3)
 
 // ========== GET HTML ELEMENTS ==========
-// Get the elements we need to update
-const clockDisplay = document.getElementById('timer');
+// Get the elements we need to update :
+
+// const clockDisplay = document.getElementById('timer'); 
 const pauseButton = document.getElementById('pauseBtn');
 const boardButton = document.getElementById('boardBtn');
 const trainRows = document.querySelectorAll('.row:not(:first-child)');
@@ -87,13 +88,13 @@ function startClock() {
       // Decrease our countdown by 1 second
       countdownTimer = countdownTimer - 1;
       
-      // Update the clock display
-      clockDisplay.textContent = "00:" + String(countdownTimer).padStart(2, '0');
+      // Update Clock Display :
+      // clockDisplay.textContent = "00:" + String(countdownTimer).padStart(2, '0');
       
       // When we reach zero...
       if (countdownTimer <= 0) {
         // Reset the seconds counter
-        countdownTimer = 3;
+        countdownTimer = 5;
         
         // Update all the train departure times
         updateTrainTimes();
