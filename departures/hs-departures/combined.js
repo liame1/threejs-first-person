@@ -32,7 +32,7 @@ let countdownTimer = 5;        // Seconds counter (resets to 3)
 // ========== GET HTML ELEMENTS ==========
 // Get the elements we need to update :
 
-// const clockDisplay = document.getElementById('timer'); 
+const clockDisplay = document.getElementById('timer'); 
 const pauseButton = document.getElementById('pauseBtn');
 const boardButton = document.getElementById('boardBtn');
 const trainRows = document.querySelectorAll('.row:not(:first-child)');
@@ -89,7 +89,7 @@ function startClock() {
       countdownTimer = countdownTimer - 1;
       
       // Update Clock Display :
-      // clockDisplay.textContent = "00:" + String(countdownTimer).padStart(2, '0');
+      clockDisplay.textContent = "00:" + String(countdownTimer).padStart(2, '0');
       
       // When we reach zero...
       if (countdownTimer <= 0) {
