@@ -27,7 +27,7 @@ const trainData = [
 // These variables control how our train board works
 let timerIsRunning = true;     // Is the clock running?
 let playerIsBoarded = false;    // Is the player on a train?
-let countdownTimer = 5;        // Seconds counter (resets to 3)
+let countdownTimer = 4;        // Seconds counter (resets to 4)
 
 // ========== GET HTML ELEMENTS ==========
 // Get the elements we need to update :
@@ -40,8 +40,8 @@ const trainRows = document.querySelectorAll('.row:not(:first-child)');
 // ========== SETUP THE TRAIN BOARD ==========
 // This function sets up our train board when the page loads
 function setupTrainBoard() {
-  // Create a list of times 1-5 that we'll use for departure times
-  const times = [1, 2, 3, 4, 5];
+  // Create a list of times 0-4 that we'll use for departure times
+  const times = [0, 1, 2, 3, 4];
   
   // Loop through each row in our train board
   trainRows.forEach(function(row) {
@@ -60,7 +60,7 @@ function setupTrainBoard() {
     
     // 4. Set a unique departure time
     // If we still have times available, pick one randomly
-    let departureTime = 1;  // Default time if we run out
+    let departureTime = 0;  // Default time if we run out
     
     if (times.length > 0) {
       // Pick a random position from our times list
@@ -94,7 +94,7 @@ function startClock() {
       // When we reach zero...
       if (countdownTimer <= 0) {
         // Reset the seconds counter
-        countdownTimer = 5;
+        countdownTimer = 4;
         
         // Update all the train departure times
         updateTrainTimes();
@@ -117,9 +117,9 @@ function updateTrainTimes() {
     // Save the new time
     timeDisplay.dataset.timeLeft = currentTime;
     
-    // If the train is departing (time reached zero)
-    if (currentTime <= 0) {
-      // If player is not on a train, open the link
+    // If the train is departing (time reached zero or less)
+    if (currentTime < 0) {
+      // If player is on a train, open the link
       if (playerIsBoarded) {
         const linkToOpen = row.querySelector('a').href;
         window.open(linkToOpen);
@@ -150,15 +150,15 @@ function addNewTrain(row) {
   trainLink.href = newTrain.link;
   trainLink.textContent = newTrain.link;
   
-  // 4. Set the departure time (always 5 minutes)
+  // 4. Set the departure time (always 4 minutes)
   const timeDisplay = row.querySelector('.depart-time');
-  timeDisplay.textContent = "5 min";
-  timeDisplay.dataset.timeLeft = 5;
+  timeDisplay.textContent = "4 min";
+  timeDisplay.dataset.timeLeft = 4;
   
   // 5. Add a highlight effect to show it's new
   row.classList.add('new-train');
   
-  // Remove the highlight effect after 4 seconds
+  // Remove the highlight effect after # of seconds
   setTimeout(function() {
     row.classList.remove('new-train');
   }, 3000); // <-- SET TO SAME TIME AS CSS ANIMATION!

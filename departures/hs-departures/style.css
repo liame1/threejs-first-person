@@ -80,12 +80,11 @@ body {
 }
     
 /* Color coding for departure times */
-.depart-time[data-time-left="1"] {
+.depart-time[data-time-left="0"] {
     background-color: rgb(247, 64, 64);
 }
     
-.depart-time[data-time-left="2"],
-.depart-time[data-time-left="3"] {
+.depart-time[data-time-left="1"] {
     background-color: rgb(247, 169, 25);
 }
     
