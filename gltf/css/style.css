@@ -15,7 +15,15 @@ canvas {
 
 #scene-container {
     background-color: rgb(92, 92, 92);
-    width: 50vw;
-    height: 50vh;
+    width: 90vw;
+    height: 90vh;
     margin: 0 auto;
+}
+
+iframe {
+    position: absolute;
+    z-index: 5;
+    top: 0;
+    margin: 10vh 20vw;
+    
 }
