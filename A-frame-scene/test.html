@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Animated HTML in A-Frame</title>
+    <script src="https://aframe.io/releases/0.8.2/aframe.min.js"> </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
+    <!-- CANNON.JS : -->
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.0.0/dist/aframe-physics-system.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+      
+      #html-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 512px;
+        height: 512px;
+        background-color: white;
+        border: 1px solid #ccc;
+        z-index: -1;
+        transform: scale(0.5);
+        transform-origin: top left;
+        overflow: hidden;
+      }
+      
+      .html-content {
+        padding: 20px;
+        font-family: Arial, sans-serif;
+      }
+      
+      .html-content h1 {
+        color: #2196F3;
+        margin-top: 0;
+      }
+      
+      /* Animated elements */
+      .animated-box {
+        width: 100px;
+        height: 100px;
+        background-color: #ff4081;
+        margin: 20px 0;
+        animation: pulse 2s infinite alternate;
+      }
+      
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        margin: 20px auto;
+        animation: spin 1s linear infinite;
+      }
+      
+      .color-fade {
+        padding: 10px;
+        background-color: #4CAF50;
+        color: white;
+        text-align: center;
+        margin: 10px 0;
+        animation: colorChange 3s infinite alternate;
+      }
+      
+      /* Define animations */
+      @keyframes pulse {
+        0% { transform: scale(1); }
+        100% { transform: scale(1.5); }
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      @keyframes colorChange {
+        0% { background-color: #4CAF50; }
+        50% { background-color: #2196F3; }
+        100% { background-color: #f44336; }
+      }
+      
+      .card {
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- HTML Content to be rendered as texture -->
+    <div id="html-container">
+      <div class="html-content">
+        <h1>Animated HTML in A-Frame</h1>
+        
+        <div class="card">
+          <h2>Animation Demo</h2>
+          <p>This content contains CSS animations that are preserved in the 3D rendering.</p>
+          
+          <div class="animated-box"></div>
+          <div class="spinner"></div>
+          <div class="color-fade">Color Changing Element</div>
+          
+          <button id="toggle-animation">Pause/Resume</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- A-Frame Scene -->
+    <a-scene background="color: #ECECEC">
+      <!-- Camera with controls -->
+      <a-entity id="rig" movement-controls kinematic-body>
+        <a-entity camera
+                  position="0 1.6 0"
+                  look-controls="pointerLockEnabled: true"></a-entity>
+      </a-entity>
+      
+      <!-- Plane to display the HTML texture -->
+      <a-entity id="html-display"
+                geometry="primitive: plane; width: 3; height: 3"
+                material="shader: flat; transparent: true; side: double"
+                position="0 1.5 -3"
+                rotation="0 0 0">
+      </a-entity>
+      
+      <!-- <a-entity 
+                camera look-controls wasd-controls="acceleration: 200" 
+                position="0 1.7 0"
+      ></a-entity> -->
+      
+      <a-gltf-model position="0 -0.5 -15" rotation="0 180 0" src="assets/station-01.glb"></a-gltf-model>
+      <a-gltf-model position="0 -0.5 -15" rotation="0 180 0" src="assets/train-00.glb"></a-gltf-model>
+      
+
+      <a-plane color="gray" position="0 -0.5 0" rotation="-90 0 0" width="30" height="30" static-body></a-plane>
+
+      <a-plane position="-2.8 4 -8" scale="2 1 1" color="black"></a-plane>
+      <a-text value="This is where iframe will exist" position="-4.3 4 -8"></a-text>
+      
+      <!-- <a-box color="blue" position="0 9 -6" scale="3 3 3" kinematic-body></a-box> -->
+      <a-box color="red" position="0 1 -6" opacity="0.2" scale="5 3 5" static-body></a-box>
+      
+    </a-scene>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const htmlContainer = document.getElementById('html-container');
+        const htmlDisplay = document.getElementById('html-display');
+        const toggleBtn = document.getElementById('toggle-animation');
+        
+        let animationsRunning = true;
+        let animationFrameId = null;
+        
+        // Function to update the texture
+        function updateTexture() {
+          // Use dom-to-image to capture the HTML as an image
+          domtoimage.toPng(htmlContainer)
+            .then(function(dataUrl) {
+              // Create a new image element
+              const img = new Image();
+              img.onload = function() {
+                // Create a new texture from the image
+                const texture = new THREE.Texture(img);
+                texture.needsUpdate = true;
+                
+                // Get the Three.js object from A-Frame entity
+                const mesh = htmlDisplay.getObject3D('mesh');
+                if (mesh) {
+                  // Update the material with the new texture
+                  mesh.material.map = texture;
+                  mesh.material.needsUpdate = true;
+                }
+                
+                // Continue animation loop if animations are running
+                if (animationsRunning) {
+                  animationFrameId = requestAnimationFrame(updateTexture);
+                }
+              };
+              img.src = dataUrl;
+            })
+            .catch(function(error) {
+              console.error('Error rendering HTML to image:', error);
+              if (animationsRunning) {
+                animationFrameId = requestAnimationFrame(updateTexture);
+              }
+            });
+        }
+        
+        // Toggle animations
+        toggleBtn.addEventListener('click', function() {
+          animationsRunning = !animationsRunning;
+          
+          if (animationsRunning) {
+            // Resume animations
+            updateTexture();
+            this.textContent = 'Pause';
+          } else {
+            // Pause animations
+            if (animationFrameId) {
+              cancelAnimationFrame(animationFrameId);
+            }
+            this.textContent = 'Resume';
+          }
+        });
+        
+        // Start the animation loop when the scene is loaded
+        document.querySelector('a-scene').addEventListener('loaded', function() {
+          // Initial texture update and start animation loop
+          updateTexture();
+        });
+      });
+    </script>
+  </body>
+</html>

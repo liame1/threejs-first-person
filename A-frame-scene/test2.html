@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Train Departures in A-Frame</title>
+    <script src="https://aframe.io/releases/0.8.2/aframe.min.js"> </script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Hide the controls when in VR mode */
+        .a-enter-vr ~ .scene-controls {
+            display: none;
+        }
+
+        /* A-Frame scene controls */
+        .scene-controls {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .scene-controls button {
+            padding: 5px 10px;
+            margin: 0 5px;
+            background: #4CAF50;
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <!-- A-Frame scene -->
+    <a-scene background="color: #1a1a1a">
+        <!-- Assets -->
+        <a-assets>
+            <!-- We'll create the train board texture dynamically with code -->
+        </a-assets>
+        
+        <!-- Camera with controls -->
+        <a-entity position="0 1.6 0">
+            <a-camera></a-camera>
+        </a-entity>
+        
+        <!-- Plane to display the board texture -->
+        <a-entity id="train-board"
+                  geometry="primitive: plane; width: 5; height: 5"
+                  material="shader: flat; transparent: true; side: double"
+                  position="0 1.5 -4"
+                  rotation="0 0 0">
+        </a-entity>
+        
+        <!-- Environment -->
+        <a-grid color="#333"></a-grid>
+        <a-sky color="#151922"></a-sky>
+        
+        <!-- Add some 3D train objects -->
+        <a-cylinder position="-4 0.75 -5" radius="0.5" height="1.5" color="#FFC65D" shadow></a-cylinder>
+        <a-box position="4 0.5 -5" rotation="0 45 0" width="1" height="1" depth="3" color="#4CC3D9" shadow></a-box>
+    </a-scene>
+
+    <!-- Scene controls -->
+    <div class="scene-controls">
+        <button id="toggle-paused">Pause Game</button>
+        <button id="board-train">Board Train</button>
+        <span id="time-display">Time: 04</span>
+    </div>
+
+    <script>
+        // ========== TRAIN DATA ==========
+        const trainData = [
+            { name: "Express to City Center", destination: "Central Station" },
+            { name: "Northern Line", destination: "Northwick Park" },
+            { name: "Airport Express", destination: "Terminal 4" },
+            { name: "Coastal Route", destination: "Beach Haven" },
+            { name: "Mountain Pass", destination: "Summit Station" },
+            { name: "Downtown Connector", destination: "Main Square" },
+            { name: "Eastern Loop", destination: "East Village" },
+            { name: "University Line", destination: "Campus Central" },
+            { name: "Industrial District", destination: "Factory Lane" },
+            { name: "Parkside Express", destination: "Green Valley" },
+            { name: "Historic Tour", destination: "Old Town" },
+            { name: "Riverside Path", destination: "Harbor View" },
+            { name: "Night Owl", destination: "Entertainment District" },
+            { name: "Shopping Express", destination: "Mall Junction" },
+            { name: "Business District", destination: "Financial Center" }
+        ];
+
+        // ========== GAME STATE ==========
+        const gameState = {
+            isPaused: false,
+            isBoarded: false,
+            timeRemaining: 4,
+            trains: []
+        };
+
+        // ========== UI ELEMENTS ==========
+        const trainBoard = document.getElementById('train-board');
+        const togglePausedBtn = document.getElementById('toggle-paused');
+        const boardTrainBtn = document.getElementById('board-train');
+        const timeDisplay = document.getElementById('time-display');
+
+        // ========== CANVAS SETUP ==========
+        // Create a canvas element programmatically for our train board
+        const canvas = document.createElement('canvas');
+        canvas.width = 800;
+        canvas.height = 800;
+        const ctx = canvas.getContext('2d');
+        
+        // ========== TRAIN GENERATION ==========
+        // Initialize our trains
+        function initializeTrains() {
+            gameState.trains = [];
+            
+            // Generate 5 trains with random departure times
+            const usedTimes = new Set();
+            
+            for (let i = 0; i < 5; i++) {
+                // Select random train data
+                const randomIndex = Math.floor(Math.random() * trainData.length);
+                const train = trainData[randomIndex];
+                
+                // Generate a unique departure time
+                let departureTime;
+                do {
+                    departureTime = Math.floor(Math.random() * 5); // 0-4 minutes
+                } while (usedTimes.has(departureTime));
+                
+                usedTimes.add(departureTime);
+                
+                // Add to our game state
+                gameState.trains.push({
+                    id: `Train-${i+1}`,
+                    name: train.name,
+                    destination: train.destination,
+                    departureTime: departureTime,
+                    isNew: false
+                });
+            }
+            
+            // Sort trains by departure time
+            gameState.trains.sort((a, b) => a.departureTime - b.departureTime);
+        }
+
+        // ========== RENDERING ==========
+        // Draw our train board on the canvas
+        function renderTrainBoard() {
+            // Clear the canvas
+            ctx.fillStyle = 'rgb(219, 231, 231)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Title and header
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 36px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('TRAIN DEPARTURES', canvas.width / 2, 60);
+            
+            // Header row
+            ctx.font = 'bold 24px Arial';
+            drawGridHeaders();
+            
+            // Train rows
+            gameState.trains.forEach((train, index) => {
+                drawTrainRow(train, index);
+            });
+            
+            // Time display
+            ctx.font = 'bold 30px monospace';
+            ctx.fillStyle = '#333';
+            ctx.textAlign = 'right';
+            ctx.fillText(`Next update: 00:${String(gameState.timeRemaining).padStart(2, '0')}`, canvas.width - 40, 60);
+            
+            // Game status
+            ctx.font = '22px Arial';
+            ctx.fillStyle = gameState.isPaused ? '#f44336' : '#4CAF50';
+            ctx.fillText(gameState.isPaused ? 'GAME PAUSED' : 'ACTIVE', canvas.width - 40, 100);
+            
+            ctx.fillStyle = gameState.isBoarded ? '#4CAF50' : '#333';
+            ctx.fillText(gameState.isBoarded ? 'ON TRAIN' : 'AT STATION', canvas.width - 40, 130);
+            
+            // Update the texture in A-Frame
+            updateAFrameTexture();
+        }
+        
+        // Draw the header row
+        function drawGridHeaders() {
+            const headerY = 120;
+            const headerHeight = 50;
+            
+            // Background
+            ctx.fillStyle = '#eaeaea';
+            ctx.fillRect(20, headerY, canvas.width - 40, headerHeight);
+            
+            // Border
+            ctx.strokeStyle = '#555';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(20, headerY, canvas.width - 40, headerHeight);
+            
+            // Text
+            ctx.fillStyle = '#333';
+            ctx.textAlign = 'left';
+            ctx.fillText('Train ID', 50, headerY + 35);
+            
+            ctx.textAlign = 'center';
+            ctx.fillText('Destination', canvas.width / 2, headerY + 35);
+            
+            ctx.textAlign = 'right';
+            ctx.fillText('Departure', canvas.width - 50, headerY + 35);
+        }
+        
+        // Draw a single train row
+        function drawTrainRow(train, index) {
+            const startY = 180 + (index * 100);
+            const rowHeight = 90;
+            
+            // Background
+            if (train.isNew) {
+                ctx.fillStyle = 'rgba(255, 238, 7, 0.5)';
+            } else {
+                ctx.fillStyle = index % 2 === 0 ? '#fff' : '#f5f5f5';
+            }
+            ctx.fillRect(20, startY, canvas.width - 40, rowHeight);
+            
+            // Border - dashed line at bottom
+            ctx.strokeStyle = '#aaa';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(20, startY + rowHeight);
+            ctx.lineTo(canvas.width - 20, startY + rowHeight);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Train ID
+            ctx.font = '24px Arial';
+            ctx.fillStyle = '#333';
+            ctx.textAlign = 'left';
+            ctx.fillText(train.id, 50, startY + 35);
+            ctx.font = '20px Arial';
+            ctx.fillText(train.name, 50, startY + 65);
+            
+            // Destination
+            ctx.font = 'bold 26px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(train.destination, canvas.width / 2, startY + 50);
+            
+            // Departure time
+            ctx.font = 'bold 36px Arial';
+            
+            // Color-code based on time left
+            if (train.departureTime === 0) {
+                ctx.fillStyle = 'rgb(247, 64, 64)'; // Red for departing now
+            } else if (train.departureTime === 1) {
+                ctx.fillStyle = 'rgb(247, 169, 25)'; // Orange for departing soon
+            } else {
+                ctx.fillStyle = '#333';
+            }
+            
+            ctx.textAlign = 'right';
+            ctx.fillText(`${train.departureTime} min`, canvas.width - 50, startY + 50);
+        }
+        
+        // Update the A-Frame texture with our canvas
+        function updateAFrameTexture() {
+            // Create a texture from the canvas
+            const texture = new THREE.CanvasTexture(canvas);
+            
+            // Get the Three.js object from the A-Frame entity
+            const boardMesh = trainBoard.getObject3D('mesh');
+            if (boardMesh) {
+                // If the material already exists, just update the texture
+                if (boardMesh.material) {
+                    boardMesh.material.map = texture;
+                    boardMesh.material.needsUpdate = true;
+                } else {
+                    // Otherwise create a new material
+                    const material = new THREE.MeshBasicMaterial({
+                        map: texture,
+                        transparent: true,
+                        side: THREE.DoubleSide
+                    });
+                    boardMesh.material = material;
+                }
+            }
+        }
+
+        // ========== GAME LOGIC ==========
+        // Timer update function
+        function updateTimer() {
+            if (gameState.isPaused) return;
+            
+            gameState.timeRemaining -= 1;
+            
+            // Update the UI
+            timeDisplay.textContent = `Time: ${String(gameState.timeRemaining).padStart(2, '0')}`;
+            
+            // When timer reaches zero
+            if (gameState.timeRemaining <= 0) {
+                // Reset timer
+                gameState.timeRemaining = 4;
+                
+                // Update trains
+                updateTrains();
+            }
+            
+            // Re-render the board
+            renderTrainBoard();
+        }
+        
+        // Update all trains when the timer ticks down
+        function updateTrains() {
+            // Decrement all departure times
+            gameState.trains.forEach(train => {
+                train.departureTime -= 1;
+                train.isNew = false;
+            });
+            
+            // Replace trains that have departed (time < 0)
+            for (let i = 0; i < gameState.trains.length; i++) {
+                if (gameState.trains[i].departureTime < 0) {
+                    // Remove the old train
+                    gameState.trains.splice(i, 1);
+                    
+                    // Generate a new train with time = 4
+                    const randomIndex = Math.floor(Math.random() * trainData.length);
+                    const newTrain = {
+                        id: `Train-${Math.floor(Math.random() * 900) + 100}`,
+                        name: trainData[randomIndex].name,
+                        destination: trainData[randomIndex].destination,
+                        departureTime: 4,  // Always arrives in 4 minutes
+                        isNew: true
+                    };
+                    
+                    // Add to the list
+                    gameState.trains.push(newTrain);
+                    
+                    // Re-sort trains by departure time
+                    gameState.trains.sort((a, b) => a.departureTime - b.departureTime);
+                    
+                    // Start over since we modified the array
+                    i = -1;
+                }
+            }
+        }
+
+        // ========== EVENT HANDLERS ==========
+        // Toggle pause state
+        togglePausedBtn.addEventListener('click', function() {
+            gameState.isPaused = !gameState.isPaused;
+            this.textContent = gameState.isPaused ? 'Resume Game' : 'Pause Game';
+            renderTrainBoard();
+        });
+        
+        // Toggle boarded state
+        boardTrainBtn.addEventListener('click', function() {
+            gameState.isBoarded = !gameState.isBoarded;
+            this.textContent = gameState.isBoarded ? 'Leave Train' : 'Board Train';
+            renderTrainBoard();
+        });
+
+        // ========== INITIALIZATION ==========
+        // Initialize the game when the scene is loaded
+        document.querySelector('a-scene').addEventListener('loaded', function() {
+            // Create the initial trains
+            initializeTrains();
+            
+            // Do the first render
+            renderTrainBoard();
+            
+            // Start the timer
+            setInterval(updateTimer, 1000);
+        });
+    </script>
+</body>
+</html>
