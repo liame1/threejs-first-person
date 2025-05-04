@@ -6,52 +6,65 @@
     <script src="https://unpkg.com/aframe-animation-component@^5.1.2/dist/aframe-animation-component.min.js"></script>
     
     <!-- Custom component to handle platform riding -->
-     <script src="platformPhys.js"></script>
+    <script src="platformPhys.js"></script>
+
+    <!-- Custom component to log camera-position -->
+     <script src="position.js"></script>
+    
+    <!-- Debug helper component -->
+    <script>
+      // Helper to visualize collision events
+      AFRAME.registerComponent('debug-collision', {
+        init: function() {
+          this.el.addEventListener('collide', function(e) {
+            console.log('Collision detected between:', 
+                       this.id || 'unnamed', 'and', 
+                       e.detail.body.el.id || 'unnamed');
+          });
+        }
+      });
+    </script>
+    
   </head>
   
   <body>
-    <a-scene physics="gravity: -9.8;">
+    <a-scene physics="driver: local; debug: false; gravity: -9.8;" debug>
       <a-sky src="https://cdn.glitch.global/d728d810-f928-4a9d-8f49-85aeabfa83a5/AdobeStock_849984817.jpeg?v=1746163154753"></a-sky>
       
+      <!-- position logger : -->
+      <a-entity position-logger="target: #rig; interval: 500; precision: 2;"></a-entity> 
+
       <!-- Player rig with physics -->
-      <a-entity id="rig" movement-controls="fly: false; constrainToNavMesh: false;" kinematic-body position="0 2 0">
-        <a-entity camera position="0 1.6 0" look-controls="pointerLockEnabled: true" wasd-controls="acceleration: 100"></a-entity>
+      <a-entity id="rig" movement-controls="fly: false; constrainToNavMesh: false;" 
+                position="0 2 0"
+                kinematic-body="radius: 0.5;"
+                debug-collision>
+        <a-entity camera position="0 1.6 0" look-controls="pointerLockEnabled: true"></a-entity>
       </a-entity>
 
       <!-- Ground -->
       <a-plane color="gray" position="0 -0.4 5" rotation="-90 0 0" width="100" height="100" static-body></a-plane>
       
       <!-- Moving platform 1 -->
-      <a-box color="blue" 
-             position="-53 -0.5 -14.7" 
+      <a-box
+             color="blue" 
+             position="0 -0.4 -14.75" 
              width="30" 
-             depth="4" 
-             height="0.5"
+             depth="4.3" 
+             height="0.2"
              visible="true"
              opacity="0.3"
-             static-body="type: kinematic" 
-             platform-carrier
-             animation="property: position; to: 0 0 -15; dur: 800; ease-in-out: elastic"
-             >
+             static-body="type: kinematic;"
+             platform-carrier="playerSelector: #rig"
+             debug-collision
+             animation="property: position; to: 92 -0.4 -14.75; dur: 700; dir: normal; delay: 14800; loop: true">
       </a-box>
-      <!-- animation__2="property: position; to: 10 0 -15; dur: 10000" -->
- 
       
-      <!-- <a-gltf-model position="0 -0.5 -15" rotation="0 180 0" src="https://cdn.glitch.global/38dfb257-bf66-44b3-90e9-4d581a70df53/station-01.glb?v=1746254134060"></a-gltf-model> -->
-<!--       <a-gltf-model position="0 -0.5 -15" rotation="0 180 0" src="https://cdn.glitch.global/38dfb257-bf66-44b3-90e9-4d581a70df53/train-01-(ani).glb?v=1746259321976" animation-mixer static-body></a-gltf-model> -->
-      <!-- <a-gltf-model position="0 0 -15" rotation="0 180 0" src="https://cdn.glitch.global/38dfb257-bf66-44b3-90e9-4d581a70df53/train-00.glb?v=1746254135289" static-body="shape: box; halfExtents: 1 0.01 1;"></a-gltf-model> -->
-      <a-gltf-model position="0 -0.5 -15" rotation="0 180 0" src="assets/transit-2car-doors-00.glb" animation-mixer></a-gltf-model>
+      <!-- Train model -->
+      <a-gltf-model position="0 -0.5 -15" rotation="0 180 0" src="assets/Transit-2car-doorAni-552-easing.glb" animation-mixer></a-gltf-model>
       
-
-      <a-plane color="gray" position="0 -0.4 5" rotation="-90 0 0" width="100" height="100" static-body></a-plane>
-
-<!--       <a-box color="blue" position="-20 1 -15" rotation="-90 0 0" width="15" height="4" static-body 
-               animation="property: position;to: 0 0; loop: true; dur: 5000"
-               ></a-box> -->
-
-      <a-plane position="-2.8 4 -8" scale="2 1 1" color="black"></a-plane>
-      <a-text value="This is where iframe will exist" position="-4.3 4 -8"></a-text>
-      
+      <!-- Ground (extended) -->
+      <a-plane color="gray" position="0 -0.4 5" rotation="-90 0 0" width="500" height="500" static-body></a-plane>
 
       <!-- Display panel -->
       <a-plane position="-2.8 4 -8" scale="2 1 1" color="black"></a-plane>
