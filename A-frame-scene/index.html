@@ -8,6 +8,9 @@
     <!-- Custom component to handle platform riding -->
     <script src="platformPhys.js"></script>
 
+    <!-- Custom component for dynamic looping of animations-->
+    <script src="looping.js"></script>
+
     <!-- Custom component to log camera-position -->
      <script src="position.js"></script>
     
@@ -57,7 +60,7 @@
              static-body="type: kinematic;"
              platform-carrier="playerSelector: #rig"
              debug-collision
-             animation="property: position; to: 92 -0.4 -14.75; dur: 700; dir: normal; delay: 14800; loop: true">
+              looping-platform="fromPosition: 0 -0.4 -14.75; toPosition: 92 -0.4 -14.75; duration: 700; delayBeforeMoving: 14800; delayBeforeReset: 7500">
       </a-box>
       
       <!-- Train model -->

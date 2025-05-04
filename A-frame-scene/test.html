@@ -106,7 +106,6 @@
           <div class="spinner"></div>
           <div class="color-fade">Color Changing Element</div>
           
-          <button id="toggle-animation">Pause/Resume</button>
         </div>
       </div>
     </div>
@@ -122,16 +121,11 @@
       
       <!-- Plane to display the HTML texture -->
       <a-entity id="html-display"
-                geometry="primitive: plane; width: 3; height: 3"
+                geometry="primitive: plane; width: 4.7; height: 2.8"
                 material="shader: flat; transparent: true; side: double"
-                position="0 1.5 -3"
+                position="-1.6 3.2 -8.1"
                 rotation="0 0 0">
       </a-entity>
-      
-      <!-- <a-entity 
-                camera look-controls wasd-controls="acceleration: 200" 
-                position="0 1.7 0"
-      ></a-entity> -->
       
       <a-gltf-model position="0 -0.5 -15" rotation="0 180 0" src="assets/station-01.glb"></a-gltf-model>
       <a-gltf-model position="0 -0.5 -15" rotation="0 180 0" src="assets/train-00.glb"></a-gltf-model>
@@ -139,11 +133,6 @@
 
       <a-plane color="gray" position="0 -0.5 0" rotation="-90 0 0" width="30" height="30" static-body></a-plane>
 
-      <a-plane position="-2.8 4 -8" scale="2 1 1" color="black"></a-plane>
-      <a-text value="This is where iframe will exist" position="-4.3 4 -8"></a-text>
-      
-      <!-- <a-box color="blue" position="0 9 -6" scale="3 3 3" kinematic-body></a-box> -->
-      <a-box color="red" position="0 1 -6" opacity="0.2" scale="5 3 5" static-body></a-box>
       
     </a-scene>
 
@@ -151,7 +140,6 @@
       document.addEventListener('DOMContentLoaded', function() {
         const htmlContainer = document.getElementById('html-container');
         const htmlDisplay = document.getElementById('html-display');
-        const toggleBtn = document.getElementById('toggle-animation');
         
         let animationsRunning = true;
         let animationFrameId = null;
@@ -190,23 +178,6 @@
               }
             });
         }
-        
-        // Toggle animations
-        toggleBtn.addEventListener('click', function() {
-          animationsRunning = !animationsRunning;
-          
-          if (animationsRunning) {
-            // Resume animations
-            updateTexture();
-            this.textContent = 'Pause';
-          } else {
-            // Pause animations
-            if (animationFrameId) {
-              cancelAnimationFrame(animationFrameId);
-            }
-            this.textContent = 'Resume';
-          }
-        });
         
         // Start the animation loop when the scene is loaded
         document.querySelector('a-scene').addEventListener('loaded', function() {
