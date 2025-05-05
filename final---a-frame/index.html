@@ -12,7 +12,10 @@
     <script src="looping.js"></script>
 
     <!-- Custom component to log camera-position -->
-     <script src="position.js"></script>
+    <script src="position.js"></script>
+     
+    <!-- Animation pauser component -->
+    <script src="animation-pauser.js"></script>
     
     <!-- Debug helper component -->
     <script>
@@ -31,7 +34,9 @@
   </head>
   
   <body>
-    <a-scene physics="driver: local; debug: false; gravity: -9.8;" debug>
+    <a-scene physics="driver: local; debug: false; gravity: -9.8;" 
+             animation-pauser="target: #rig; xThreshold: 70; resumeThreshold: 65;" 
+             debug>
       <a-sky src="https://cdn.glitch.global/d728d810-f928-4a9d-8f49-85aeabfa83a5/AdobeStock_849984817.jpeg?v=1746163154753"></a-sky>
       
       <!-- position logger : -->
@@ -50,18 +55,37 @@
       
       <!-- Moving platform 1 -->
       <a-box
-             color="blue" 
-             position="0 -0.4 -14.75" 
-             width="30" 
-             depth="4.3" 
-             height="0.2"
-             visible="true"
-             opacity="0.3"
-             static-body="type: kinematic;"
-             platform-carrier="playerSelector: #rig"
-             debug-collision
-            looping-platform="fromPosition: 0 -0.4 -14.75; toPosition: 92 -0.4 -14.75; duration: 700; delayBeforeMoving: 14800; delayBeforeReset: 7500">
-      </a-box>
+            color="blue" 
+            position="0 -0.4 -14.75" 
+            width="30" 
+            depth="4.3" 
+            height="0.2"
+            visible="true"
+            opacity="0.3"
+            static-body="type: kinematic;"
+            platform-carrier="playerSelector: #rig"
+            debug-collision
+            looping-platform="fromPosition: 0 -0.4 -14.75; toPosition: 92 -0.4 -14.75; duration: 700; delayBeforeMoving: 14800; delayBeforeReset: 7500"
+      ></a-box>
+
+      <a-box
+        color="red"
+        position="4.6 0 -12.5" 
+        width="2.8"
+        depth="0.2"
+        height="4"
+        visible="true"
+        opacity="0.8"
+      ></a-box>
+      <a-box
+        color="red"
+        position="11.4 0 -12.5" 
+        width="2.8"
+        depth="0.4"
+        height="4"
+        visible="true"
+        opacity="0.8"
+      ></a-box>
       
       <!-- Train model -->
       <a-gltf-model id="train" position="0 -0.5 -15" rotation="0 180 0" src="assets/transit-updatedDoors-552-ani-00.glb" animation-mixer></a-gltf-model>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Animated HTML in A-Frame</title>
+    <script src="https://aframe.io/releases/0.8.2/aframe.min.js"> </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.5.0/dom-to-image.min.js"></script>
+    <!-- CANNON.JS : -->
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.0.0/dist/aframe-physics-system.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+
+    <script src="main.js"></script>
+    <script src="combined.js"></script>
+
+  </head>
+  <body>
+    <!-- HTML Content to be rendered as texture -->
+    <div id="html-container">
+      <div class="html-content">
+        
+        <div class="card">
+          
+          <!-- <div class="animated-box"></div>
+          <div class="spinner"></div>
+          <div class="color-fade">Color Changing Element</div> -->
+          
+        </div>
+          <div class="grid">
+            <section class="row">
+                <i>Train ID
+                    <button id="boardBtn">Board Train</button>
+                </i>
+                <i>Destination</i>
+                <i>Time 
+                    <button id="pauseBtn">Pause</button>
+                    <div id="timer">00:00</div>
+                </i>
+            </section>
+            <section class="row">
+                <p id="link1" href="" target="_blank"></p>
+                <div class="depart-time"></div>
+            </section>
+            <section class="row">
+                <p id="link2" href="" target="_blank"></p>
+                <div class="depart-time"></div>
+            </section>
+            <section class="row">
+                <p id="link3" href="" target="_blank"></p>
+                <div class="depart-time"></div>
+            </section>
+            <section class="row">
+                <p id="link4" href="" target="_blank"></p>
+                <div class="depart-time"></div>
+            </section>
+            <section class="row">
+                <p id="link5" href="" target="_blank"></p>
+                <div class="depart-time"></div>
+            </section>
+        </div>
+      </div>
+    </div>
+
+
+    
+    <!-- A-Frame Scene -->
+    <a-scene background="color: #ECECEC">
+      <!-- Camera with controls -->
+      <a-entity id="rig" movement-controls kinematic-body>
+        <a-entity camera
+                  position="0 1.6 0"
+                  look-controls="pointerLockEnabled: true"></a-entity>
+      </a-entity>
+      
+      <!-- Plane to display the HTML texture -->
+      <a-entity id="html-display"
+                geometry="primitive: plane; width: 4.7; height: 2.8"
+                material="shader: flat; transparent: true; side: double"
+                position="-1.6 3.2 -8.1"
+                rotation="0 0 0">
+      </a-entity>
+      
+      <a-gltf-model position="0 -0.5 -15" rotation="0 180 0" src="assets/transit-updatedDoors-552-ani-00.glb"></a-gltf-model>
+      
+
+      <a-plane color="gray" position="0 -0.5 0" rotation="-90 0 0" width="30" height="30" static-body></a-plane>
+
+      
+    </a-scene>
+  </body>
+</html>
