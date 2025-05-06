@@ -587,16 +587,10 @@ function openEarliestTrainLink() {
       const linkToOpen = linkElement.href;
       window.location.href = linkToOpen;
 
-
       // Guarantees site is reloaded when visited (added due to back-button not reloading page)
-      jQuery( document ).ready(function( $ ) {
-    
-        //Use this inside your document ready jQuery 
-        $(window).on('popstate', function() {
-            location.reload(true);
-        });
-         
-      });
+      window.onbeforeunload = function() {
+        window.location.reload(true);
+      }
     }
   }
 }
