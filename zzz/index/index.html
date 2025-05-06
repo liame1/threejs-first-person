@@ -29,7 +29,7 @@
           <section class="row">
             <i>Destination</i>
             <i>Time
-              <div id="timer">00:00</div>
+              <!-- <div id="timer">00:00</div> -->
             </i>
           </section>
           <section class="row">
@@ -63,11 +63,12 @@
             background="color: white"
             asset-loading-manager="debug: true"
             pointer-lock-controls>
+            <a-sky src="assets/equirectangluar-ocean.jpeg"></a-sky>
       
       <!-- Asset Management -->
       <a-assets timeout="15000">
         <!-- Train Model -->
-        <a-asset-item id="train-model" src="assets/transit-DoorFixed-552Ani-01.glb"></a-asset-item>
+        <a-asset-item id="train-model" src="assets/transit-extra-screen-added-552-02.glb"></a-asset-item>
       </a-assets>
 
       <!-- position logger -->
@@ -82,7 +83,7 @@
       </a-entity>
 
       <!-- Ground -->
-      <a-plane color="gray" position="0 -0.4 5" rotation="-90 0 0" width="100" height="100" static-body></a-plane>
+      <a-plane visible="false" color="gray" position="0 -0.4 5" rotation="-90 0 0" width="100" height="100" static-body></a-plane>
       
       <!-- TRAIN WALLS/FLOOR -->
       <a-box
@@ -92,7 +93,7 @@
             width="30" 
             depth="4.4" 
             height="0.2"
-            visible="true"
+            visible="false"
             opacity="0.3"
             static-body="type: kinematic;"
             platform-carrier="playerSelector: #rig"
@@ -106,7 +107,7 @@
             width="30" 
             depth="0.1" 
             height="10"
-            visible="true"
+            visible="false"
             opacity="0.3"
             static-body="type: kinematic;"
             platform-carrier="playerSelector: #rig"
@@ -120,7 +121,7 @@
             width="30" 
             depth="0.1" 
             height="10"
-            visible="true"
+            visible="false"
             opacity="0.3"
             static-body="type: kinematic;"
             platform-carrier="playerSelector: #rig"
@@ -139,7 +140,7 @@
             width="5" 
             depth="4.4" 
             height="10"
-            visible="true"
+            visible="false"
             opacity="0.3"
             static-body
             platform-carrier="playerSelector: #rig"
@@ -147,18 +148,32 @@
             looping-platform="fromPosition: -17.5 -0.4 -14.75; toPosition: 75 -0.4 -14.75; duration: 700; delayBeforeMoving: 14800; delayBeforeReset: 7500"
       ></a-box>
       <a-box
-            id="train-wall-middle"
+            id="train-wall-middle-1"
             color="purple" 
             position="" 
             width="2" 
-            depth="4.4" 
+            depth="1.5" 
             height="10"
-            visible="true"
+            visible="false"
             opacity="0.3"
             static-body
             platform-carrier="playerSelector: #rig"
             debug-collision
-            looping-platform="fromPosition: 0 -0.4 -14.75; toPosition: 90 -0.4 -14.75; duration: 700; delayBeforeMoving: 14800; delayBeforeReset: 7500"
+            looping-platform="fromPosition: 0 -0.4 -13.3; toPosition: 90 -0.4 -13.3; duration: 700; delayBeforeMoving: 14800; delayBeforeReset: 7500"
+      ></a-box>
+      <a-box
+            id="train-wall-middle-2"
+            color="purple" 
+            position="" 
+            width="2" 
+            depth="1.5" 
+            height="10"
+            visible="false"
+            opacity="0.3"
+            static-body
+            platform-carrier="playerSelector: #rig"
+            debug-collision
+            looping-platform="fromPosition: 0 -0.4 -16.2; toPosition: 90 -0.4 -16.2; duration: 700; delayBeforeMoving: 14800; delayBeforeReset: 7500"
       ></a-box>
       <a-box
             id="train-wall-bow"
@@ -167,7 +182,7 @@
             width="5" 
             depth="4.4" 
             height="10"
-            visible="true"
+            visible="false"
             opacity="0.3"
             static-body
             platform-carrier="playerSelector: #rig"
@@ -183,7 +198,7 @@
         width="0.1"
         depth="18.8"
         height="10"
-        visible="true"
+        visible="false"
         opacity="0.8"
         static-body
       ></a-box>
@@ -194,7 +209,7 @@
         width="0.1"
         depth="18.8"
         height="10"
-        visible="true"
+        visible="false"
         opacity="0.8"
         static-body
       ></a-box>
@@ -205,7 +220,7 @@
         width="44"
         depth="0.1"
         height="10"
-        visible="true"
+        visible="false"
         opacity="0.8"
         static-body
       ></a-box>
@@ -218,7 +233,7 @@
         width="9"
         depth="0.2"
         height="10"
-        visible="true"
+        visible="false"
         opacity="0.8"
         static-body
       ></a-box>
@@ -229,7 +244,7 @@
         width="9"
         depth="0.2"
         height="10"
-        visible="true"
+        visible="false"
         opacity="0.8"
         static-body
       ></a-box>
@@ -240,7 +255,7 @@
         width="4.5"
         depth="0.2"
         height="10"
-        visible="true"
+        visible="false"
         opacity="0.8"
         static-body
       ></a-box>
@@ -251,7 +266,7 @@
         width="6.5"
         depth="0.2"
         height="10"
-        visible="true"
+        visible="false"
         opacity="0.8"
         static-body
       ></a-box>
@@ -262,7 +277,7 @@
         width="4.5"
         depth="0.2"
         height="10"
-        visible="true"
+        visible="false"
         opacity="0.8"
         static-body
       ></a-box>
@@ -275,7 +290,7 @@
         width="30"
         depth="0.19"
         height="10"
-        visible="true"
+        visible="false"
         opacity="0.8"
         static-body
         physics-toggle="disableDelay: 5500;
@@ -288,15 +303,13 @@
       <!-- Train model using asset reference -->
       <a-gltf-model id="train" position="0 -0.5 -15" rotation="0 180 0" src="#train-model" animation-mixer></a-gltf-model>
 
-      <!-- Ground (extended) -->
-      <a-plane color="gray" position="0 -0.4 5" rotation="-90 0 0" width="500" height="500" static-body></a-plane>
 
       <!-- HTML Display Panel - replaced basic text with html-display entity -->
       <a-entity id="html-display"
-                geometry="primitive: plane; width: 4.7; height: 2.8"
+                geometry="primitive: plane; width: 10; height: 6"
                 material="shader: flat; transparent: true; side: double"
-                position="-1.6 3.2 -8.1"
-                rotation="0 0 0">
+                position="5.8 0.35 0.33"
+                rotation="0 -90 0">
       </a-entity>
     </a-scene>
   </body>

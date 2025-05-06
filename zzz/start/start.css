@@ -30,6 +30,9 @@ body {
 /* ----- BODY ----- */
 body {
     background: rgb(255, 234, 202);
+
+    background-image: linear-gradient( rgb(202, 240, 255), rgba(134, 7, 7, 0.3));
+
     margin: 0;
     font-family: 'Open Sans', sans-serif;
     
@@ -49,12 +52,17 @@ body {
 header {
     text-align: center;
     justify-content: center;
-    margin: 12% 5% 7% 0;
+    margin: 12% auto 6% auto;
+    padding: 0 2% 0 0;
 
     font-size: 2.5rem;
     font-style: italic;
 
     grid-area: 1 / 1;
+
+    animation: fadeIn 2.5s;
+
+    background-color: 10px 5px 5px rgba(0, 0, 0, 0.2);
 }
 
 img {
@@ -62,6 +70,8 @@ img {
 }
 
 a {
+    opacity: 0;
+
     font-size: 1.2rem;
 
     box-sizing: border-box;
@@ -71,11 +81,35 @@ a {
     text-decoration: none;
     color: black;
 
-    border: 5px solid;
+    border: 3px solid;
     padding: 0 1%;
     margin: 0 auto;
     border-radius: 20px;
 
-
     grid-area: 2 / 1;
+
+    animation: fadeInBtn 2s linear 1s;
+    animation-fill-mode: forwards;
 }
+
+/* ANIMATIONS */
+@keyframes fadeIn {
+    0% {
+        transform: translateY(-60%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0%);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInBtn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+

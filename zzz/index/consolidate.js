@@ -585,7 +585,7 @@ function openEarliestTrainLink() {
     const linkElement = earliestTrain.querySelector('a');
     if (linkElement) {
       const linkToOpen = linkElement.href;
-      open(linkToOpen);
+      window.location.href = linkToOpen;
       console.log("Opening link for earliest departing train (time: " + earliestTime + "):", linkToOpen);
     }
   }
