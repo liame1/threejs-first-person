@@ -586,7 +586,17 @@ function openEarliestTrainLink() {
     if (linkElement) {
       const linkToOpen = linkElement.href;
       window.location.href = linkToOpen;
-      console.log("Opening link for earliest departing train (time: " + earliestTime + "):", linkToOpen);
+
+
+      // Guarantees site is reloaded when visited (added due to back-button not reloading page)
+      jQuery( document ).ready(function( $ ) {
+    
+        //Use this inside your document ready jQuery 
+        $(window).on('popstate', function() {
+            location.reload(true);
+        });
+         
+      });
     }
   }
 }
