@@ -22,51 +22,6 @@ body {
   font-family: Arial, sans-serif;
 }
 
-/* Animated elements */
-.animated-box {
-  width: 100px;
-  height: 100px;
-  background-color: #ff4081;
-  margin: 20px 0;
-  animation: pulse 2s infinite alternate;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
-  border-radius: 50%;
-  margin: 20px auto;
-  animation: spin 1s linear infinite;
-}
-
-.color-fade {
-  padding: 10px;
-  background-color: #4CAF50;
-  color: white;
-  text-align: center;
-  margin: 10px 0;
-  animation: colorChange 3s infinite alternate;
-}
-
-/* Define animations */
-@keyframes pulse {
-  0% { transform: scale(1); }
-  100% { transform: scale(1.5); }
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-@keyframes colorChange {
-  0% { background-color: #4CAF50; }
-  50% { background-color: #2196F3; }
-  100% { background-color: #f44336; }
-}
-
 
 /* ----- GRID ----- */
 .grid {
@@ -90,7 +45,7 @@ body {
 
 /* ----- ANIMATION -----  */
 .new-train {
-  animation: fadeBackground 3s ease;
+  animation: fadeBackground 4s ease;
 }
   
 @keyframes fadeBackground {
@@ -130,6 +85,11 @@ a {
   padding: 0.3rem;
 }
 
+i { 
+  font-size: 2rem;
+  margin: 1rem;
+}
+
 #timer {
   font-family: monospace;
   font-size: 1.6rem;
@@ -144,3 +104,4 @@ a {
   cursor: pointer;
   font-size: 1rem;
 }
+

@@ -1,0 +1,78 @@
+<html> 
+  <head>
+    <script src="https://aframe.io/releases/0.8.2/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.0.0/dist/aframe-physics-system.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+    <script src="https://unpkg.com/aframe-animation-component@^5.1.2/dist/aframe-animation-component.min.js"></script>
+    
+    <script src="new.js"></script>
+  </head>
+  
+  <body>
+    <a-scene physics="driver: local; debug: false; gravity: -9.8;" 
+             animation-pauser="target: #rig; xThreshold: 70; resumeThreshold: 65;" 
+             debug>
+      <a-sky src="https://cdn.glitch.global/d728d810-f928-4a9d-8f49-85aeabfa83a5/AdobeStock_849984817.jpeg?v=1746163154753"></a-sky>
+      
+      <!-- position logger : -->
+      <a-entity position-logger="target: #rig; interval: 500; precision: 2;"></a-entity> 
+
+      <!-- Player rig with physics -->
+      <a-entity id="rig" movement-controls="fly: false; constrainToNavMesh: false;" 
+                position="0 2 0"
+                kinematic-body="radius: 0.5;"
+                debug-collision>
+        <a-entity camera position="0 1.6 0" look-controls="pointerLockEnabled: true"></a-entity>
+      </a-entity>
+
+      <!-- Ground -->
+      <a-plane color="gray" position="0 -0.4 5" rotation="-90 0 0" width="100" height="100" static-body></a-plane>
+      
+      <!-- Moving platform 1 -->
+      <a-box
+            color="blue" 
+            position="0 -0.4 -14.75" 
+            width="30" 
+            depth="4.3" 
+            height="0.2"
+            visible="true"
+            opacity="0.3"
+            static-body="type: kinematic;"
+            platform-carrier="playerSelector: #rig"
+            debug-collision
+            looping-platform="fromPosition: 0 -0.4 -14.75; toPosition: 92 -0.4 -14.75; duration: 700; delayBeforeMoving: 14800; delayBeforeReset: 7500"
+      ></a-box>
+
+      <a-box
+        color="red"
+        position="4.6 0 -12.5" 
+        width="2.8"
+        depth="0.2"
+        height="4"
+        visible="true"
+        opacity="0.8"
+      ></a-box>
+
+      <a-box
+        color="red"
+        position="11.4 0 -12.5" 
+        width="2.8"
+        depth="0.4"
+        height="4"
+        visible="true"
+        opacity="0.8"
+      ></a-box>
+      
+      <!-- Train model -->
+      <a-gltf-model id="train" position="0 -0.5 -15" rotation="0 180 0" src="assets/transit-updatedDoors-552-ani-00.glb" animation-mixer></a-gltf-model>
+
+      
+      <!-- Ground (extended) -->
+      <a-plane color="gray" position="0 -0.4 5" rotation="-90 0 0" width="500" height="500" static-body></a-plane>
+
+      <!-- Display panel -->
+      <a-plane position="-2.8 4 -8" scale="2 1 1" color="black"></a-plane>
+      <a-text value="This is where iframe will exist" position="-4.3 4 -8"></a-text>
+    </a-scene>
+  </body>
+</html>

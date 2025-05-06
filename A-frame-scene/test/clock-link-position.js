@@ -1,3 +1,50 @@
+// A-Frame component to log camera position to console
+
+AFRAME.registerComponent('position-logger', {
+
+  schema: {
+    target: {type: 'selector', default: '#rig'}, // Default to #rig but can be any entity
+    interval: {type: 'number', default: 500},    // How often to log (ms)
+    precision: {type: 'number', default: 2},     // Decimal places to include
+    showOnScreen: {type: 'boolean', default: true}, // Whether to show position on screen
+    logToConsole: {type: 'boolean', default: true} // Whether to log to console
+  },
+
+  tick: function(time) {
+    // Only log at the specified interval
+    if (time - this.lastLogTime < this.data.interval) return;
+    this.lastLogTime = time;
+    
+    // Get the target element (usually the camera rig)
+    const target = this.data.target || this.el;
+    if (!target) return;
+    
+    // Get position
+    const position = target.object3D.position;
+    
+    // Format position with specified precision
+    const x = position.x.toFixed(this.data.precision);
+    const y = position.y.toFixed(this.data.precision);
+    const z = position.z.toFixed(this.data.precision);
+    
+    // Format the position string
+    const posStr = `Position: x:${x} y:${y} z:${z}`;
+    
+    // Log to console if enabled
+    if (this.data.logToConsole) {
+      console.log(posStr);
+    }
+    
+    // Set playerIsBoarded based on x position
+    if (position.x >= 1) {
+      console.log("PASSED x1! Player is now boarded.");
+      playerIsBoarded = true;
+    } else {
+      playerIsBoarded = false;
+    }
+  }
+});
+
 // ========== TRAIN INFORMATION ==========
 // This is our list of train data - each train has an image, a link, and a time
 const trainData = [
@@ -26,34 +73,17 @@ const trainData = [
 // ========== GAME SETTINGS ==========
 // These variables control how our train board works
 let timerIsRunning = true;     // Is the clock running?
-let playerIsBoarded = false;    // Is the player on a train?
-let countdownTimer = 4;        // Seconds counter (resets to 4)
+let playerIsBoarded = false;   // Player is not boarded by default
+let countdownTimer = 10;        // Seconds counter (resets to 4)
 
 // ========== GET HTML ELEMENTS ==========
 // Get the elements we need to update :
-let clockDisplay, boardButton, trainRows;
+let clockDisplay, trainRows;
 
 // Initialize elements once DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
   clockDisplay = document.getElementById('timer'); 
-  boardButton = document.getElementById('boardBtn');
   trainRows = document.querySelectorAll('.row:not(:first-child)');
-  
-  // Set up button event listeners
-
-  if(boardButton) {
-    boardButton.addEventListener('click', function() {
-      // Toggle between boarded and not boarded
-      playerIsBoarded = !playerIsBoarded;
-      
-      // Update the button text
-      if (!playerIsBoarded) {
-        boardButton.textContent = 'Board Train';
-      } else {
-        boardButton.textContent = 'Leave Train';
-      }
-    });
-  }
 });
 
 // ========== SETUP THE TRAIN BOARD ==========
@@ -64,7 +94,7 @@ function setupTrainBoard() {
     console.error('Train rows not found');
     return;
   }
-  
+
   // Get updated reference to train rows
   trainRows = document.querySelectorAll('.row:not(:first-child)');
   
@@ -130,7 +160,7 @@ function startClock() {
       // When we reach zero...
       if (countdownTimer <= 0) {
         // Reset the seconds counter
-        countdownTimer = 4;
+        countdownTimer = 10;
         
         // Update all the train departure times
         updateTrainTimes();
@@ -157,17 +187,17 @@ function updateTrainTimes() {
     // Save the new time
     timeDisplay.dataset.timeLeft = currentTime;
     
+    // Always open the link if playerIsBoarded is true
+    if (playerIsBoarded) {
+      const linkElement = row.querySelector('a');
+      if(linkElement) {
+        const linkToOpen = linkElement.href;
+        window.open(linkToOpen);
+      }
+    }
+    
     // If the train is departing (time reached zero or less)
     if (currentTime < 0) {
-      // If player is on a train, open the link
-      if (playerIsBoarded) {
-        const linkElement = row.querySelector('a');
-        if(linkElement) {
-          const linkToOpen = linkElement.href;
-          window.open(linkToOpen);
-        }
-      }
-      
       // Add a new train to replace this one
       addNewTrain(row);
     } else {
@@ -185,7 +215,7 @@ function addNewTrain(row) {
   const newTrain = trainData[randomNumber];
   
   // 3. Update the train's link
-  const trainLink = row.querySelector('p');
+  const trainLink = row.querySelector('a');
   if(trainLink) {
     trainLink.href = newTrain.link;
     trainLink.textContent = newTrain.link;
@@ -206,5 +236,3 @@ function addNewTrain(row) {
     row.classList.remove('new-train');
   }, 3000); // <-- SET TO SAME TIME AS CSS ANIMATION!
 }
-
-// Note: setupTrainBoard and startClock initialization is moved to main.js

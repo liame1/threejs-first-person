@@ -1,0 +1,81 @@
+/* Existing CSS resets and common styles */
+/*
+CSS RESETS:
+ Border box reset:
+https://www.paulirish.com/2012/box-sizing-border-box-ftw/
+ 62.5% Fix: https: //www.aleksandrhovhannisyan.com/blog/62-5-percent-font-size-trick/
+*/
+
+html {
+    box-sizing: border-box;
+    font-size: 62.5%;
+}
+    
+*,
+*:before,
+*:after {
+    box-sizing: inherit;
+    margin: 0;
+    padding: 0;
+}
+    
+html, 
+body {
+    height: 100%;
+    font-size: 1.6rem;
+    /* same as 16px using 62.5% fix for rem */
+    line-height: 1.6;
+}
+    
+/* ----- BODY ----- */
+body {
+    background: rgb(255, 234, 202);
+    margin: 0;
+    font-family: 'Open Sans', sans-serif;
+    
+}
+
+/* GRID */
+
+.grid {
+    display: grid;
+    grid-template-columns: auto;
+    grid-template-rows: auto;
+
+}
+
+/* ELSE */
+
+header {
+    text-align: center;
+    justify-content: center;
+    margin: 12% 5% 7% 0;
+
+    font-size: 2.5rem;
+    font-style: italic;
+
+    grid-area: 1 / 1;
+}
+
+img {
+    vertical-align: middle;
+}
+
+a {
+    font-size: 1.2rem;
+
+    box-sizing: border-box;
+    text-align: center;
+    justify-content: center;
+
+    text-decoration: none;
+    color: black;
+
+    border: 5px solid;
+    padding: 0 1%;
+    margin: 0 auto;
+    border-radius: 20px;
+
+
+    grid-area: 2 / 1;
+}
