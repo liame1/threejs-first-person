@@ -3,6 +3,11 @@
 // Asset Loading Manager for A-Frame
 // Add this to consolidate.js
 
+// Guarantees site is reloaded when visited (added due to back-button not reloading page)
+  window.onbeforeunload = function() {
+    window.location.reload(true);
+}
+
 // Create a new component for managing asset loading
 AFRAME.registerComponent('asset-loading-manager', {
   schema: {
@@ -587,10 +592,6 @@ function openEarliestTrainLink() {
       const linkToOpen = linkElement.href;
       window.location.href = linkToOpen;
 
-      // Guarantees site is reloaded when visited (added due to back-button not reloading page)
-      window.onbeforeunload = function() {
-        window.location.reload(true);
-      }
     }
   }
 }

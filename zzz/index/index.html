@@ -29,7 +29,7 @@
           <section class="row">
             <i>Destination</i>
             <i>Time
-              <!-- <div id="timer">00:00</div> -->
+              <div id="timer">00:00</div>
             </i>
           </section>
           <section class="row">
@@ -84,6 +84,15 @@
 
       <!-- Ground -->
       <a-plane visible="false" color="gray" position="0 -0.4 5" rotation="-90 0 0" width="100" height="100" static-body></a-plane>
+
+      <!-- MUSIC BOX -->
+      <a-entity geometry="box" sound="src: assets/Olson.mp3 ; autoplay: true; loop: true;"
+                position="5 0 0"
+      ></a-entity>
+
+      <!-- LIGHTING -->
+      <a-entity light="type: point; intensity: 0.5; distance: 100; color: red" position="-10 10 0"></a-entity>
+
       
       <!-- TRAIN WALLS/FLOOR -->
       <a-box
