@@ -56,10 +56,8 @@
     
     <!-- A-Frame Assets Management System -->
     <a-scene physics="driver: local; debug: false; gravity: -9.8;" 
-            animation-pauser="target: #rig; xThreshold: 70; resumeThreshold: 65;" 
             debug
             background="color: white"
-            asset-loading-manager="debug: true"
             pointer-lock-controls>
             <a-sky src="assets/equirectangluar-ocean.jpeg"></a-sky>
       
@@ -76,7 +74,8 @@
       <a-entity id="rig" movement-controls="fly: false; constrainToNavMesh: false;" 
                 position="0 2 0"
                 kinematic-body="radius: 0.5;"
-                debug-collision>
+                >
+
         <a-entity camera position="0 1.6 0" look-controls="pointerLockEnabled: true"></a-entity>
       </a-entity>
 
@@ -105,7 +104,6 @@
             opacity="0.3"
             static-body="type: kinematic;"
             platform-carrier="playerSelector: #rig"
-            debug-collision
             multi-position-platform="fromPosition: 0 -0.4 -14.75; toPosition: 92 -0.4 -14.75; duration: 700; delayBeforeMoving: 14800; delayBeforeReset: 7500"
       ></a-box>
       <a-box
@@ -117,9 +115,7 @@
             height="10"
             visible="true"
             opacity="0.3"
-            static-body="type: kinematic;"
-            platform-carrier="playerSelector: #rig"
-            debug-collision
+            static-body
             multi-position-platform="fromPosition: 0 -0.4 -17; toPosition: 92 -0.4 -17; duration: 700; delayBeforeMoving: 14800; delayBeforeReset: 7500"
       ></a-box>
       <a-box
@@ -131,10 +127,9 @@
             height="10"
             visible="true"
             opacity="0.3"
-            static-body="type: kinematic;"
-            platform-carrier="playerSelector: #rig"
-            debug-collision
-            multi-position-platform="fromPosition: 0 -0.4 -12.5; toPosition: 92 -0.4 -12.5; duration: 700; delayBeforeMoving: 14800; delayBeforeReset: 7500"
+            static-body
+            multi-position-platform="fromPosition: 0 10 -12.5; toPosition: 0 -0.4 -12.5; duration: 1; delayBeforeMoving: 14800; delayBeforeReset: 1000"
+            multi-position-platform__2="fromPosition: 0 -0.4 -12.5; toPosition: 92 -0.4 -12.5; duration: 700; delayBeforeMoving: 14800; delayBeforeReset: 7500"
       ></a-box>
       <a-box
             id="train-wall-stern"
@@ -146,8 +141,6 @@
             visible="true"
             opacity="0.3"
             static-body
-            platform-carrier="playerSelector: #rig"
-            debug-collision
             multi-position-platform="fromPosition: -17.5 -0.4 -14.75; toPosition: 75 -0.4 -14.75; duration: 700; delayBeforeMoving: 14800; delayBeforeReset: 7500"
       ></a-box>
       <a-box
@@ -160,8 +153,6 @@
             visible="true"
             opacity="0.3"
             static-body
-            platform-carrier="playerSelector: #rig"
-            debug-collision
             multi-position-platform="fromPosition: 0 -0.4 -13.3; toPosition: 90 -0.4 -13.3; duration: 700; delayBeforeMoving: 14800; delayBeforeReset: 7500"
       ></a-box>
       <a-box
@@ -174,8 +165,6 @@
             visible="true"
             opacity="0.3"
             static-body
-            platform-carrier="playerSelector: #rig"
-            debug-collision
             multi-position-platform="fromPosition: 0 -0.4 -16.2; toPosition: 90 -0.4 -16.2; duration: 700; delayBeforeMoving: 14800; delayBeforeReset: 7500"
       ></a-box>
       <a-box
@@ -189,7 +178,6 @@
             opacity="0.3"
             static-body
             platform-carrier="playerSelector: #rig"
-            debug-collision
             multi-position-platform="fromPosition: 17.5 -0.4 -14.75; toPosition: 105 -0.4 -14.75; duration: 700; delayBeforeMoving: 14800; delayBeforeReset: 7500"
       ></a-box>
 
@@ -296,7 +284,7 @@
         visible="true"
         opacity="0.8"
         static-body
-        multi-position-platform="fromPosition: 0 0 -12.5; toPosition: 0 -10 -12.5; duration: 0.1; delayBeforeMoving: 5500; delayBeforeReset: 7400"
+        multi-position-platform="fromPosition: 0 0 -12.5; toPosition: 0 -10 -12.5; duration: 0.1; delayBeforeMoving: 5500; delayBeforeReset: 80000"
       ></a-box>
 
       
