@@ -1,469 +1,7 @@
 // Combined JavaScript file for Train Station VR experience
 
-// Asset Loading Manager for A-Frame
-// Add this to consolidate.js
-
 // Guarantees site is reloaded when visited (added due to back-button not reloading page)
-  window.onbeforeunload = function() {
-    window.location.reload(true);
-}
-
-// Create a new component for managing asset loading
-AFRAME.registerComponent('asset-loading-manager', {
-  schema: {
-    debug: {type: 'boolean', default: true}
-  },
-
-  init: function() {
-    // Track loading state
-    this.assetsLoaded = false;
-    this.sceneReady = false;
-    
-    // Create loading overlay
-    this.createLoadingOverlay();
-    
-    // Get reference to the scene
-    const scene = this.el.sceneEl;
-    
-    // Track loading assets
-    this.assetItems = [];
-    this.loadedItems = 0;
-    
-    // Find all assets that need loading
-    this.collectAssets();
-    
-    // If no assets to load, scene is ready
-    if (this.assetItems.length === 0) {
-      this.log('No assets to load, scene ready!');
-      this.sceneReady = true;
-      this.removeLoadingOverlay();
-      return;
-    }
-    
-    // Set up event listeners for assets
-    this.setupAssetListeners();
-    
-    // Set up a safety timeout
-    this.setupSafetyTimeout();
-    
-    // Listen for scene loaded event
-    scene.addEventListener('loaded', () => {
-      this.log('Scene loaded event fired');
-      this.checkIfReady();
-    });
-    
-    this.log(`Initialized asset manager. Found ${this.assetItems.length} assets to load.`);
-  },
-  
-  // Collect all assets that need to be loaded
-  collectAssets: function() {
-    const scene = this.el.sceneEl;
-    
-    // Find all a-assets elements
-    const assetContainers = scene.querySelectorAll('a-assets');
-    assetContainers.forEach(container => {
-      const items = container.querySelectorAll('*');
-      items.forEach(item => this.assetItems.push(item));
-    });
-    
-    // Find all gltf models
-    const gltfModels = scene.querySelectorAll('a-gltf-model');
-    gltfModels.forEach(model => this.assetItems.push(model));
-    
-    // Find all images used in textures
-    const entitiesWithTextures = scene.querySelectorAll('[material*="src:"]');
-    entitiesWithTextures.forEach(entity => this.assetItems.push(entity));
-    
-    // Find all images in HTML to be rendered as texture
-    const htmlImages = document.querySelectorAll('#html-container img');
-    htmlImages.forEach(img => this.assetItems.push(img));
-    
-    this.log(`Collected assets: ${this.assetItems.length} items to load`);
-  },
-  
-  // Setup listeners for all assets
-  setupAssetListeners: function() {
-    this.assetItems.forEach((item, index) => {
-      // Tag the item for debugging
-      item.dataset.assetIndex = index;
-      
-      // Different elements have different load events
-      if (item.tagName === 'IMG' || 
-          item.tagName === 'AUDIO' || 
-          item.tagName === 'VIDEO') {
-        // For media elements
-        if (item.complete || item.readyState >= 4) {
-          // Already loaded
-          this.onAssetLoaded(item);
-        } else {
-          item.addEventListener('load', () => this.onAssetLoaded(item));
-          item.addEventListener('error', (e) => this.onAssetError(item, e));
-        }
-      } else if (item.tagName === 'A-GLTF-MODEL') {
-        // For A-Frame GLTF models
-        item.addEventListener('model-loaded', () => this.onAssetLoaded(item));
-        item.addEventListener('model-error', (e) => this.onAssetError(item, e));
-      } else {
-        // For other A-Frame entities with textures
-        if (item.getAttribute('material')) {
-          // Use a timeout to check if material is loaded
-          setTimeout(() => {
-            if (item.components && 
-                item.components.material && 
-                item.components.material.material && 
-                item.components.material.material.map && 
-                item.components.material.material.map.image) {
-              this.onAssetLoaded(item);
-            } else {
-              // Material didn't load properly, but we'll continue anyway
-              this.log(`Warning: Material might not be fully loaded for ${item.id || 'unnamed entity'}`);
-              this.onAssetLoaded(item);
-            }
-          }, 1000); // Check after 1 second
-        } else {
-          // Count it as loaded if it's not a material we can check
-          this.onAssetLoaded(item);
-        }
-      }
-    });
-  },
-  
-  // Handle successful asset load
-  onAssetLoaded: function(item) {
-    this.loadedItems++;
-    this.log(`Asset loaded (${this.loadedItems}/${this.assetItems.length}): ${item.id || item.getAttribute('src') || 'unnamed'}`);
-    
-    // Update loading progress
-    this.updateLoadingProgress(this.loadedItems / this.assetItems.length);
-    
-    // Check if all assets are loaded
-    this.checkIfReady();
-  },
-  
-  // Handle asset loading error
-  onAssetError: function(item, error) {
-    this.log(`Error loading asset: ${item.id || item.getAttribute('src') || 'unnamed'}`, error);
-    
-    // Count it as "loaded" anyway so we don't hang
-    this.loadedItems++;
-    this.updateLoadingProgress(this.loadedItems / this.assetItems.length);
-    this.checkIfReady();
-  },
-  
-  // Check if everything is loaded and ready
-  checkIfReady: function() {
-    if (this.assetsLoaded) {
-      return; // Already marked as loaded
-    }
-    
-    if (this.loadedItems >= this.assetItems.length) {
-      this.log('All assets loaded!');
-      this.assetsLoaded = true;
-      
-      // Give a moment for everything to render
-      setTimeout(() => {
-        this.sceneReady = true;
-        this.removeLoadingOverlay();
-        this.log('Scene is ready!');
-        
-        // Initialize the HTML texture once all assets are loaded
-        this.initializeHtmlTexture();
-        
-        // Emit an event that the scene is fully loaded
-        this.el.sceneEl.emit('assets-loaded', {count: this.loadedItems});
-      }, 500);
-    }
-  },
-  
-  // Create a loading overlay to hide scene until ready
-  createLoadingOverlay: function() {
-    // Create overlay div
-    const overlay = document.createElement('div');
-    overlay.id = 'loading-overlay';
-    overlay.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgb(71, 83, 107, 0.9);;
-      color: white;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-      font-family: Arial, sans-serif;
-    `;
-    
-    // Add loading text
-    const loadingText = document.createElement('h1');
-    loadingText.textContent = 'LOADING';
-    overlay.appendChild(loadingText);
-    
-    // Add progress bar container
-    const progressContainer = document.createElement('div');
-    progressContainer.style.cssText = `
-      width: 50%;
-      height: 30px;
-      background-color: rgb(11, 58, 90,);;
-      overflow: hidden;
-      margin-top: 20px;
-    `;
-    
-    // Add progress bar
-    const progressBar = document.createElement('div');
-    progressBar.id = 'loading-progress';
-    progressBar.style.cssText = `
-      width: 0%;
-      height: 100%;
-      background-color:rgb(255, 255, 255);
-      transition: width 0.3s ease;
-    `;
-    
-    progressContainer.appendChild(progressBar);
-    overlay.appendChild(progressContainer);
-    
-    // Add to body
-    document.body.appendChild(overlay);
-    this.overlay = overlay;
-  },
-  
-  // Update loading progress bar
-  updateLoadingProgress: function(percentage) {
-    const progressBar = document.getElementById('loading-progress');
-    if (progressBar) {
-      progressBar.style.width = `${percentage * 100}%`;
-    }
-  },
-  
-  // Remove loading overlay when ready
-  removeLoadingOverlay: function() {
-    if (this.overlay && this.overlay.parentNode) {
-      // Fade out overlay
-      this.overlay.style.transition = 'opacity 0.5s ease';
-      this.overlay.style.opacity = '0';
-      
-      // Remove after transition
-      setTimeout(() => {
-        if (this.overlay && this.overlay.parentNode) {
-          this.overlay.parentNode.removeChild(this.overlay);
-        }
-      }, 500);
-    }
-  },
-  
-  // Setup a safety timeout to prevent infinite loading
-  setupSafetyTimeout: function() {
-    // After 15 seconds, show the scene anyway
-    setTimeout(() => {
-      if (!this.sceneReady) {
-        this.log('Safety timeout reached. Showing scene anyway.');
-        this.sceneReady = true;
-        this.removeLoadingOverlay();
-        this.el.sceneEl.emit('assets-timeout', {
-          loaded: this.loadedItems, 
-          total: this.assetItems.length
-        });
-      }
-    }, 15000);
-  },
-  
-  // Initialize HTML texture after everything else is loaded
-  initializeHtmlTexture: function() {
-    const htmlContainer = document.getElementById('html-container');
-    const htmlDisplay = document.getElementById('html-display');
-    
-    if (htmlContainer && htmlDisplay) {
-      setTimeout(() => {
-        // Use dom-to-image to capture the HTML as an image
-        domtoimage.toPng(htmlContainer)
-          .then(function(dataUrl) {
-            // Create a new image element
-            const img = new Image();
-            img.onload = function() {
-              // Create a new texture from the image
-              const texture = new THREE.Texture(img);
-              texture.needsUpdate = true;
-              
-              // Get the Three.js object from A-Frame entity
-              const mesh = htmlDisplay.getObject3D('mesh');
-              if (mesh) {
-                // Update the material with the new texture
-                mesh.material.map = texture;
-                mesh.material.needsUpdate = true;
-              }
-              console.log("HTML Texture initialized at " + new Date().toLocaleTimeString());
-            };
-            img.src = dataUrl;
-          })
-          .catch(function(error) {
-            console.error('Error rendering HTML to image:', error);
-          });
-      }, 100); // Short delay to ensure DOM is fully ready
-    }
-  },
-  
-  // Utility for logging messages
-  log: function(message, error) {
-    if (this.data.debug) {
-      if (error) {
-        console.error('[Asset Manager]', message, error);
-      } else {
-        console.log('[Asset Manager]', message);
-      }
-    }
-  }
-});
-
-// Modify setupTrainBoard to return a promise that resolves when complete
-function setupTrainBoard() {
-  return new Promise((resolve, reject) => {
-    try {
-      // Ensure elements are available
-      if(!document.querySelectorAll('.row:not(:first-child)').length) {
-        console.error('Train rows not found');
-        reject('Train rows not found');
-        return;
-      }
-
-      // Get updated reference to train rows
-      trainRows = document.querySelectorAll('.row:not(:first-child)');
-      
-      // Create a list of times 0-4 that we'll use for departure times
-      const times = [0, 1, 2, 3, 4];
-      
-      // Loop through each row in our train board
-      trainRows.forEach(function(row) {
-        // 1. Pick a random train from our list
-        const randomNumber = Math.floor(Math.random() * trainData.length);
-        const chosenTrain = trainData[randomNumber];
-        
-        // 2. Set the train's link
-        const trainLink = row.querySelector('a');
-        if(trainLink) {
-          trainLink.href = chosenTrain.link;
-          trainLink.textContent = chosenTrain.link;
-        }
-        
-        // 3. Set a unique departure time
-        // If we still have times available, pick one randomly
-        let departureTime = 0;  // Default time if we run out
-        
-        if (times.length > 0) {
-          // Pick a random position from our times list
-          const randomPosition = Math.floor(Math.random() * times.length);
-          // Get the time at that position
-          departureTime = times[randomPosition];
-          // Remove that time from our list so it's not used again
-          times.splice(randomPosition, 1);
-        }
-        
-        // Update the display with our chosen time
-        const timeDisplay = row.querySelector('.depart-time');
-        if(timeDisplay) {
-          timeDisplay.textContent = departureTime + " min";
-          timeDisplay.dataset.timeLeft = departureTime;
-        }
-      });
-      
-      resolve('Train board setup complete');
-    } catch (error) {
-      reject(error);
-    }
-  });
-}
-
-// Modified DOM-loaded event handler
-document.addEventListener('DOMContentLoaded', function() {
-  // Initialize timer/clock elements
-  clockDisplay = document.getElementById('timer');
-  trainRows = document.querySelectorAll('.row:not(:first-child)');
-  
-  // Add the asset-loading-manager component to the scene
-  const scene = document.querySelector('a-scene');
-  if (scene) {
-    // Add loading manager component to scene
-    if (!scene.hasAttribute('asset-loading-manager')) {
-      scene.setAttribute('asset-loading-manager', 'debug: true');
-    }
-    
-    // Listen for when all assets are loaded
-    scene.addEventListener('assets-loaded', function() {
-      console.log('All assets loaded, initializing game systems');
-      
-      // Set up game systems only after assets are loaded
-      setupTrainBoard()
-        .then(() => {
-          console.log('Train board initialized');
-          startClock();
-          console.log('Clock started');
-        })
-        .catch(error => {
-          console.error('Error setting up train board:', error);
-        });
-    });
-    
-    // Handle timeout (if not all assets could be loaded)
-    scene.addEventListener('assets-timeout', function(e) {
-      console.warn(`Loading timeout reached. Loaded ${e.detail.loaded}/${e.detail.total} assets.`);
-      
-      // Initialize anyway
-      setupTrainBoard()
-        .then(() => {
-          console.log('Train board initialized (after timeout)');
-          startClock();
-        })
-        .catch(error => {
-          console.error('Error setting up train board:', error);
-        });
-    });
-  } else {
-    // Fallback if scene not found
-    console.error('A-Frame scene not found');
-    
-    // Initialize anyway
-    setupTrainBoard()
-      .then(() => {
-        console.log('Train board initialized (fallback)');
-        startClock();
-      })
-      .catch(error => {
-        console.error('Error setting up train board:', error);
-      });
-  }
-});
-
-// ============================================================================
-// HELPER UTILITIES
-// ============================================================================
-
-// Utility functions for common operations
-const Utils = {
-  // Get entity dimensions safely from geometry or direct attributes
-  getDimensions: function(el) {
-    const dims = { width: 1, height: 0.1, depth: 1 }; // Default fallbacks
-    
-    // Try to get from geometry component
-    const geometry = el.getAttribute('geometry');
-    if (geometry) {
-      if (geometry.width) dims.width = geometry.width;
-      if (geometry.depth) dims.depth = geometry.depth;
-      if (geometry.height) dims.height = geometry.height;
-    } else {
-      // Try direct attributes
-      const w = el.getAttribute('width');
-      const h = el.getAttribute('height');
-      const d = el.getAttribute('depth');
-      
-      if (w) dims.width = w;
-      if (h) dims.height = h;
-      if (d) dims.depth = d;
-    }
-    
-    return dims;
-  }
-};
+window.onbeforeunload = () => window.location.reload(true);
 
 // ========== TRAIN INFORMATION ==========
 // This is our list of train data - each train has an image, a link, and a time
@@ -496,6 +34,37 @@ let timerIsRunning = true;     // Is the clock running?
 let playerIsBoarded = false;   // Player is not boarded by default
 let countdownTimer = 23;       // Seconds counter (resets to 10)
 let clockDisplay, trainRows;   // DOM elements we'll need to update
+
+// ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
+
+// Utility functions for common operations
+const Utils = {
+  // Get entity dimensions safely from geometry or direct attributes
+  getDimensions: function(el) {
+    const dims = { width: 1, height: 0.1, depth: 1 }; // Default fallbacks
+    
+    // Try to get from geometry component
+    const geometry = el.getAttribute('geometry');
+    if (geometry) {
+      if (geometry.width) dims.width = geometry.width;
+      if (geometry.depth) dims.depth = geometry.depth;
+      if (geometry.height) dims.height = geometry.height;
+    } else {
+      // Try direct attributes
+      const w = el.getAttribute('width');
+      const h = el.getAttribute('height');
+      const d = el.getAttribute('depth');
+      
+      if (w) dims.width = w;
+      if (h) dims.height = h;
+      if (d) dims.depth = d;
+    }
+    
+    return dims;
+  }
+};
 
 // ============================================================================
 // POSITION LOGGER COMPONENT
@@ -542,10 +111,10 @@ AFRAME.registerComponent('position-logger', {
     }
     
     // Set playerIsBoarded based on x position and open link if first time boarding
-    if (position.x >= 60) {
+    if (position.x >= 30) {
       // Only do this if player wasn't boarded before
       if (!this.hasBoarded) {
-        console.log("PASSED x60! Player is now boarded.");
+        console.log("PASSED x30! Player is now boarded.");
         playerIsBoarded = true;
         this.hasBoarded = true;
         
@@ -591,7 +160,6 @@ function openEarliestTrainLink() {
     if (linkElement) {
       const linkToOpen = linkElement.href;
       window.location.href = linkToOpen;
-
     }
   }
 }
@@ -733,34 +301,11 @@ AFRAME.registerComponent('looping-platform', {
     this.animationState = 'waiting';
     this.startTime = null;
     this.currentDelay = this.data.delayBeforeMoving;
-    this.pausedTime = null;
-    this.positionBeforePause = new THREE.Vector3();
     
     // Start the animation cycle
     this.startAnimationCycle();
     
-    // Listen for scene-wide animation pause/resume events
-    const scene = this.el.sceneEl;
-    scene.addEventListener('animations-paused', () => {
-      if (this.animationState !== 'paused') {
-        // Store current state before pausing
-        this.stateBeforePause = this.animationState;
-        this.positionBeforePause.copy(this.el.object3D.position);
-        this.pausedTime = performance.now();
-        this.animationState = 'paused';
-        console.log("Platform animation paused");
-      }
-    });
-    
-    scene.addEventListener('animations-resumed', () => {
-      if (this.animationState === 'paused') {
-        // Calculate time adjustment for resuming
-        const pauseDuration = performance.now() - this.pausedTime;
-        if (this.startTime) this.startTime += pauseDuration;
-        this.animationState = this.stateBeforePause || 'waiting';
-        console.log("Platform animation resumed to state:", this.animationState);
-      }
-    });
+    console.log("Platform initialized", this.el.id || "unnamed platform");
   },
   
   startAnimationCycle: function() {
@@ -779,11 +324,6 @@ AFRAME.registerComponent('looping-platform', {
     // First call, set the reference time
     if (this.startTime === null) {
       this.startTime = time;
-      return;
-    }
-    
-    // Skip updates while paused
-    if (this.animationState === 'paused') {
       return;
     }
     
@@ -833,156 +373,6 @@ AFRAME.registerComponent('looping-platform', {
         }
         break;
     }
-  }
-});
-
-// ============================================================================
-// ANIMATION PAUSER COMPONENT
-// ============================================================================
-
-AFRAME.registerComponent('animation-pauser', {
-  schema: {
-    target: {type: 'selector', default: '#rig'}, // Entity to track (player rig)
-    xThreshold: {type: 'number', default: 70},   // X position threshold to trigger pause
-    resumeThreshold: {type: 'number', default: 65}, // X position to resume animations
-    targetAnimations: {type: 'array', default: ['*']}, // Which animations to pause
-    affectMixers: {type: 'boolean', default: true}, // Pause animation-mixer components
-    affectAnimations: {type: 'boolean', default: true} // Pause animation components
-  },
-  
-  init: function() {
-    this.isPaused = false;
-    this.lastCheckTime = 0;
-    this.checkInterval = 250; // ms between checks
-    
-    console.log("Animation pauser initialized - will pause at x:", this.data.xThreshold);
-  },
-  
-  tick: function(time) {
-    // Check position periodically (not every frame for performance)
-    if (time - this.lastCheckTime < this.checkInterval) return;
-    this.lastCheckTime = time;
-    
-    // Get target position (usually player rig)
-    const target = this.data.target;
-    if (!target || !target.object3D) return;
-    
-    const position = target.object3D.position;
-    
-    // Check threshold
-    if (!this.isPaused && position.x >= this.data.xThreshold) {
-      // Pause animations
-      this.pauseAllAnimations();
-      this.isPaused = true;
-      console.log("Animations paused at x:", position.x.toFixed(2));
-    } 
-    // Optional: Resume when moving back
-    else if (this.isPaused && position.x < this.data.resumeThreshold) {
-      // Resume animations
-      this.resumeAllAnimations();
-      this.isPaused = false;
-      console.log("Animations resumed at x:", position.x.toFixed(2));
-    }
-  },
-  
-  pauseAllAnimations: function() {
-    const scene = this.el.sceneEl;
-    
-    // Pause animation-mixer components (for GLTF models)
-    if (this.data.affectMixers) {
-      const mixers = Array.from(document.querySelectorAll('[animation-mixer]'));
-      mixers.forEach(el => {
-        // Access the animation mixer component
-        const mixer = el.components['animation-mixer'];
-        if (mixer && mixer.mixer) {
-          // Store current timeScale before pausing
-          el.dataset.previousTimeScale = mixer.mixer.timeScale;
-          mixer.mixer.timeScale = 0;
-          console.log("Paused animation-mixer on:", el.id || "unnamed entity");
-        }
-      });
-    }
-    
-    // Pause animation components
-    if (this.data.affectAnimations) {
-      const animations = Array.from(document.querySelectorAll('[animation]'));
-      animations.forEach(el => {
-        const animationComponents = Object.keys(el.components).filter(name => 
-          name === 'animation' || name.startsWith('animation__'));
-          
-        animationComponents.forEach(name => {
-          const anim = el.components[name];
-          if (anim && !anim.paused) {
-            anim.pause();
-            console.log("Paused animation on:", el.id || "unnamed entity");
-          }
-        });
-      });
-    }
-    
-    // Emit a global event for other components to react to
-    scene.emit('animations-paused');
-  },
-  
-  resumeAllAnimations: function() {
-    const scene = this.el.sceneEl;
-    
-    // Resume animation-mixer components
-    if (this.data.affectMixers) {
-      const mixers = Array.from(document.querySelectorAll('[animation-mixer]'));
-      mixers.forEach(el => {
-        const mixer = el.components['animation-mixer'];
-        if (mixer && mixer.mixer) {
-          // Restore previous timeScale or default to 1
-          const prevTimeScale = parseFloat(el.dataset.previousTimeScale) || 1;
-          mixer.mixer.timeScale = prevTimeScale;
-          console.log("Resumed animation-mixer on:", el.id || "unnamed entity");
-        }
-      });
-    }
-    
-    // Resume animation components
-    if (this.data.affectAnimations) {
-      const animations = Array.from(document.querySelectorAll('[animation]'));
-      animations.forEach(el => {
-        const animationComponents = Object.keys(el.components).filter(name => 
-          name === 'animation' || name.startsWith('animation__'));
-          
-        animationComponents.forEach(name => {
-          const anim = el.components[name];
-          if (anim && anim.paused) {
-            anim.resume();
-            console.log("Resumed animation on:", el.id || "unnamed entity");
-          }
-        });
-      });
-    }
-    
-    // Emit a global event for other components to react to
-    scene.emit('animations-resumed');
-  },
-  
-  // Clean up when the component is removed
-  remove: function() {
-    // Make sure to resume animations if component is removed while paused
-    if (this.isPaused) {
-      this.resumeAllAnimations();
-    }
-  }
-});
-
-// ============================================================================
-// DEBUG HELPER COMPONENT
-// ============================================================================
-
-// Helper to visualize collision events
-AFRAME.registerComponent('debug-collision', {
-  init: function() {
-    this.el.addEventListener('collide', function(e) {
-      console.log('Collision detected between:', 
-                 this.id || 'unnamed', 'and', 
-                 e.detail.body.el.id || 'unnamed');
-    });
   }
 });
 
@@ -1087,9 +477,6 @@ function updateTrainTimes() {
     // Save the new time
     timeDisplay.dataset.timeLeft = currentTime;
     
-    // Note: We no longer check playerIsBoarded here because
-    // link opening is now handled in the position-logger component
-    
     // If the train is departing (time reached zero or less)
     if (currentTime < 0) {
       // Add a new train to replace this one
@@ -1138,7 +525,7 @@ document.addEventListener('DOMContentLoaded', function() {
   clockDisplay = document.getElementById('timer');
   trainRows = document.querySelectorAll('.row:not(:first-child)');
   
-  // Set up the train board once DOM is loaded
+  // Set up the train board and start the clock directly - no waiting for assets
   setupTrainBoard();
   startClock();
 
@@ -1148,11 +535,8 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Only run this if we have both elements
   if (htmlContainer && htmlDisplay) {
-    // Variable to keep track of the last update time
-    let lastTextureUpdateTime = 0;
-    // Set texture update interval to 10 seconds (10000 ms)
+    // Set texture update interval to 1 second (1000 ms)
     const textureUpdateInterval = 1000;
-    let shouldUpdateOnNextTick = true;
     
     // Function to update the texture
     function updateTexture() {
@@ -1182,17 +566,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Set up a tick function that will update the texture every 10 seconds
-    htmlDisplay.sceneEl.addEventListener('loaded', function() {
-      // Update texture immediately when scene loads
-      updateTexture();
-      
-      // Then set up interval-based updates
-      setInterval(updateTexture, textureUpdateInterval);
-      
-      console.log("Texture update system initialized with " + 
-                 (textureUpdateInterval / 100) + " second interval");
-    });
+    // Simply update the texture and set interval immediately
+    updateTexture();
+    setInterval(updateTexture, textureUpdateInterval);
+    
+    console.log("Texture update system initialized with " + 
+               (textureUpdateInterval / 1000) + " second interval");
   }
 });
 
@@ -1421,96 +800,5 @@ AFRAME.registerComponent('physics-toggle', {
     delete this.el.physicsToggle;
     
     console.log("Physics toggle component removed from:", this.el.id || "unnamed entity");
-  }
-});
-
-// ============================================================================
-// ANIMATION-TRIGGERED PHYSICS TOGGLE
-// ============================================================================
-
-AFRAME.registerComponent('animation-physics-toggle', {
-  schema: {
-    disableOnStart: { type: 'boolean', default: true },  // Disable physics when animation starts
-    enableOnComplete: { type: 'boolean', default: true } // Enable physics when animation completes
-  },
-  
-  init: function() {
-    const el = this.el;
-    
-    // Make sure element has physics-toggle component
-    if (!el.components['physics-toggle']) {
-      el.setAttribute('physics-toggle', '');
-      console.log("Added physics-toggle component to:", el.id || "unnamed entity");
-    }
-    
-    // Bind event handlers
-    this.onAnimationStart = this.onAnimationStart.bind(this);
-    this.onAnimationComplete = this.onAnimationComplete.bind(this);
-    
-    // Find animation components
-    const animComponents = Object.keys(el.components).filter(key => 
-      key === 'animation' || key.startsWith('animation__')
-    );
-    
-    // Add event listeners for each animation component
-    if (animComponents.length > 0) {
-      el.addEventListener('animationstart', this.onAnimationStart);
-      el.addEventListener('animationcomplete', this.onAnimationComplete);
-    }
-    
-    // Also check for animation-mixer (GLTF animations)
-    if (el.components['animation-mixer']) {
-      // This is trickier since animation-mixer doesn't emit standard events
-      // We'll hook into the tick function
-      const mixer = el.components['animation-mixer'];
-      
-      // Store original timeScale to detect changes
-      this.lastTimeScale = mixer.mixer ? mixer.mixer.timeScale : 0;
-      
-      // Add our own tick function
-      this.tick = (time) => {
-        if (!mixer.mixer) return;
-        
-        // Detect animation start (timeScale goes from 0 to >0)
-        if (this.lastTimeScale === 0 && mixer.mixer.timeScale > 0) {
-          this.onAnimationStart();
-        }
-        
-        // Detect animation stop (timeScale goes from >0 to 0)
-        else if (this.lastTimeScale > 0 && mixer.mixer.timeScale === 0) {
-          this.onAnimationComplete();
-        }
-        
-        // Store for next frame
-        this.lastTimeScale = mixer.mixer.timeScale;
-      };
-    }
-    
-    console.log("Animation-physics-toggle initialized on:", el.id || "unnamed entity");
-  },
-  
-  // Handle animation start
-  onAnimationStart: function() {
-    if (this.data.disableOnStart && this.el.physicsToggle) {
-      this.el.physicsToggle.disablePhysics();
-      console.log("Animation started, physics disabled on:", this.el.id || "unnamed entity");
-    }
-  },
-  
-  // Handle animation complete
-  onAnimationComplete: function() {
-    if (this.data.enableOnComplete && this.el.physicsToggle) {
-      this.el.physicsToggle.enablePhysics();
-      console.log("Animation completed, physics enabled on:", this.el.id || "unnamed entity");
-    }
-  },
-  
-  // Clean up when removed
-  remove: function() {
-    const el = this.el;
-    
-    // Remove event listeners
-    el.removeEventListener('animationstart', this.onAnimationStart);
-    el.removeEventListener('animationcomplete', this.onAnimationComplete);
   }
 });

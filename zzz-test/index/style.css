@@ -1,0 +1,107 @@
+body {
+  margin: 0;
+  /* overflow: hidden; */
+}
+
+#html-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 512px;
+  height: 512px;
+  background: rgb(219, 231, 231);
+  border: 1px solid #ccc;
+  z-index: -1;
+  transform: scale(0.5);
+  transform-origin: top left;
+  overflow: hidden;
+}
+
+.html-content {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+
+/* ----- GRID ----- */
+.grid {
+  display: grid;
+  grid-template-rows: repeat(6, auto);  /* Header + 5 train rows */
+  grid-template-columns: 100%;
+  text-align: center;
+  margin: 1rem;
+  max-height: 90vh;
+}
+  
+.row {
+  display: grid;
+  border-bottom: 2px dashed rgb(160, 145, 160);
+  grid-template-columns: 70% 30%;  /* Changed to 2 columns */
+  justify-items: center;
+  align-items: center;
+  text-align: center;
+  padding: 0.5rem;
+}
+
+/* ----- ANIMATION -----  */
+.new-train {
+  animation: fadeBackground 4s ease;
+}
+  
+@keyframes fadeBackground {
+  0% { background-color: rgba(255, 238, 7, 0.5); }
+  100% { background-color: transparent; }
+}
+  
+/* ----- GRID AREA ----- */
+.depart-time {
+  background-color: rgb(255, 255, 255);
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: rgb(40, 40, 40);
+  padding: 0.5rem;
+}
+  
+/* Color coding for departure times */
+.depart-time[data-time-left="0"] {
+  background-color: rgb(247, 64, 64);
+}
+  
+.depart-time[data-time-left="1"] {
+  background-color: rgb(247, 169, 25);
+}
+  
+/* ----- STYLING ELEMENTS ----- */
+a {
+  font-size: 1rem;
+  text-decoration: none;
+  color: rgb(83, 32, 43);
+  word-break: break-word;
+  display: inline-block;
+  max-width: 95%;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0.3rem;
+}
+
+i { 
+  font-size: 2rem;
+  margin: 1rem;
+}
+
+#timer {
+  font-family: monospace;
+  font-size: 1.6rem;
+  margin-top: 0.5rem;
+}
+  
+#boardBtn {
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  border: 1px solid #555;
+  background-color: #f1f1f1;
+  cursor: pointer;
+  font-size: 1rem;
+}
+

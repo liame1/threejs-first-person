@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Animated HTML in A-Frame</title>
+    <script src="https://aframe.io/releases/0.8.2/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.0.0/dist/aframe-physics-system.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+    <script src="https://unpkg.com/aframe-animation-component@^5.1.2/dist/aframe-animation-component.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.5.0/dom-to-image.min.js"></script>
+    
+    <!-- CSS for HTML content -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- JavaScript files -->
+    <script src="consolidate.js"></script>
+  </head>
+  
+  <body>
+    <!-- HTML Content to be rendered as texture -->
+    <div id="html-container">
+      <div class="html-content">
+        <div class="card">
+          <!-- Animation elements can be uncommented if needed -->
+          <!-- <div class="animated-box"></div>
+          <div class="spinner"></div>
+          <div class="color-fade">Color Changing Element</div> -->
+        </div>
+        <div class="grid">
+          <section class="row">
+            <i>Destination</i>
+            <i>Time</i>
+          </section>
+          <section class="row">
+            <a id="link1" href="" target="_blank"></a>
+            <div class="depart-time"></div>
+          </section>
+          <section class="row">
+            <a id="link2" href="" target="_blank"></a>
+            <div class="depart-time"></div>
+          </section>
+          <section class="row">
+            <a id="link3" href="" target="_blank"></a>
+            <div class="depart-time"></div>
+          </section>
+          <section class="row">
+            <a id="link4" href="" target="_blank"></a>
+            <div class="depart-time"></div>
+          </section>
+          <section class="row">
+            <a id="link5" href="" target="_blank"></a>
+            <div class="depart-time"></div>
+          </section>
+        </div>
+      </div>
+    </div>
+    
+    <!-- A-Frame Assets Management System -->
+    <a-scene physics="driver: local; debug: false; gravity: -9.8;" 
+            animation-pauser="target: #rig; xThreshold: 70; resumeThreshold: 65;" 
+            debug
+            background="color: white"
+            asset-loading-manager="debug: true"
+            pointer-lock-controls>
+            <a-sky src="assets/equirectangluar-ocean.jpeg"></a-sky>
+      
+      <!-- Asset Management -->
+      <a-assets timeout="15000">
+        <!-- Train Model -->
+        <a-asset-item id="train-model" src="assets/transit-extra-screen-added-552-02.glb"></a-asset-item>
+      </a-assets>
+
+      <!-- position logger -->
+      <a-entity position-logger="target: #rig; interval: 500; precision: 2;"></a-entity> 
+
+      <!-- Player rig with physics -->
+      <a-entity id="rig" movement-controls="fly: false; constrainToNavMesh: false;" 
+                position="0 2 0"
+                kinematic-body="radius: 0.5;"
+                debug-collision>
+        <a-entity camera position="0 1.6 0" look-controls="pointerLockEnabled: true"></a-entity>
+      </a-entity>
+
+      <!-- Ground -->
+      <a-plane visible="true" color="gray" position="0 -0.4 5" rotation="-90 0 0" width="100" height="100" static-body></a-plane>
+
+      <!-- MUSIC BOX -->
+      <a-entity geometry="box" sound="src: assets/Olson.mp3 ; autoplay: true; loop: true;"
+                position="5 0 0"
+      ></a-entity>
+
+
+      <!-- LIGHTING -->
+      <a-entity light="type: point; intensity: 1; distance: 100; color: white" position="-10 10 0"></a-entity>
+
+      
+      <!-- TRAIN WALLS/FLOOR -->
+      <a-box
+            id="train-floor"
+            color="blue" 
+            position="" 
+            width="30" 
+            depth="4.4" 
+            height="0.2"
+            visible="true"
+            opacity="0.3"
+            static-body="type: kinematic;"
+            platform-carrier="playerSelector: #rig"
+            debug-collision
+            multi-position-platform="fromPosition: 0 -0.4 -14.75; toPosition: 92 -0.4 -14.75; duration: 700; delayBeforeMoving: 14800; delayBeforeReset: 7500"
+      ></a-box>
+      <a-box
+            id="train-left-wall"
+            color="blue" 
+            position="" 
+            width="30" 
+            depth="0.1" 
+            height="10"
+            visible="true"
+            opacity="0.3"
+            static-body="type: kinematic;"
+            platform-carrier="playerSelector: #rig"
+            debug-collision
+            multi-position-platform="fromPosition: 0 -0.4 -17; toPosition: 92 -0.4 -17; duration: 700; delayBeforeMoving: 14800; delayBeforeReset: 7500"
+      ></a-box>
+      <a-box
+            id="train-right-wall"
+            color="blue" 
+            position="" 
+            width="30" 
+            depth="0.1" 
+            height="10"
+            visible="true"
+            opacity="0.3"
+            static-body="type: kinematic;"
+            platform-carrier="playerSelector: #rig"
+            debug-collision
+            multi-position-platform="fromPosition: 0 -0.4 -12.5; toPosition: 92 -0.4 -12.5; duration: 700; delayBeforeMoving: 14800; delayBeforeReset: 7500"
+      ></a-box>
+      <a-box
+            id="train-wall-stern"
+            color="purple" 
+            position="" 
+            width="5" 
+            depth="4.4" 
+            height="10"
+            visible="true"
+            opacity="0.3"
+            static-body
+            platform-carrier="playerSelector: #rig"
+            debug-collision
+            multi-position-platform="fromPosition: -17.5 -0.4 -14.75; toPosition: 75 -0.4 -14.75; duration: 700; delayBeforeMoving: 14800; delayBeforeReset: 7500"
+      ></a-box>
+      <a-box
+            id="train-wall-middle-1"
+            color="purple" 
+            position="" 
+            width="2" 
+            depth="1.5" 
+            height="10"
+            visible="true"
+            opacity="0.3"
+            static-body
+            platform-carrier="playerSelector: #rig"
+            debug-collision
+            multi-position-platform="fromPosition: 0 -0.4 -13.3; toPosition: 90 -0.4 -13.3; duration: 700; delayBeforeMoving: 14800; delayBeforeReset: 7500"
+      ></a-box>
+      <a-box
+            id="train-wall-middle-2"
+            color="purple" 
+            position="" 
+            width="2" 
+            depth="1.5" 
+            height="10"
+            visible="true"
+            opacity="0.3"
+            static-body
+            platform-carrier="playerSelector: #rig"
+            debug-collision
+            multi-position-platform="fromPosition: 0 -0.4 -16.2; toPosition: 90 -0.4 -16.2; duration: 700; delayBeforeMoving: 14800; delayBeforeReset: 7500"
+      ></a-box>
+      <a-box
+            id="train-wall-bow"
+            color="purple" 
+            position="" 
+            width="5" 
+            depth="4.4" 
+            height="10"
+            visible="true"
+            opacity="0.3"
+            static-body
+            platform-carrier="playerSelector: #rig"
+            debug-collision
+            multi-position-platform="fromPosition: 17.5 -0.4 -14.75; toPosition: 105 -0.4 -14.75; duration: 700; delayBeforeMoving: 14800; delayBeforeReset: 7500"
+      ></a-box>
+
+      <!-- STATION WALLS -->
+      <a-box
+        id="right-wall"
+        color="green"
+        position="21.7 0 -3" 
+        width="0.1"
+        depth="18.8"
+        height="10"
+        visible="true"
+        opacity="0.8"
+        static-body
+      ></a-box>
+      <a-box
+        id="left-wall"
+        color="green"
+        position="-21.7 0 -3" 
+        width="0.1"
+        depth="18.8"
+        height="10"
+        visible="true"
+        opacity="0.8"
+        static-body
+      ></a-box>
+      <a-box
+        id="behind-wall"
+        color="green"
+        position="0 0 6.5" 
+        width="44"
+        depth="0.1"
+        height="10"
+        visible="true"
+        opacity="0.8"
+        static-body
+      ></a-box>
+
+      <!-- STATION FRONT WALLS -->
+      <a-box
+        id="front-wall-left"
+        color="green"
+        position="-17.25 0 -12.5" 
+        width="9"
+        depth="0.2"
+        height="10"
+        visible="true"
+        opacity="0.8"
+        static-body
+      ></a-box>
+      <a-box
+        id="front-wall-right"
+        color="green"
+        position="17.25 0 -12.5" 
+        width="9"
+        depth="0.2"
+        height="10"
+        visible="true"
+        opacity="0.8"
+        static-body
+      ></a-box>
+      <a-box
+        id="front-wall-1"
+        color="green"
+        position="-8 0 -12.5" 
+        width="4.5"
+        depth="0.2"
+        height="10"
+        visible="true"
+        opacity="0.8"
+        static-body
+      ></a-box>
+      <a-box
+        id="front-wall-2"
+        color="green"
+        position="0 0 -12.5" 
+        width="6.5"
+        depth="0.2"
+        height="10"
+        visible="true"
+        opacity="0.8"
+        static-body
+      ></a-box>
+      <a-box
+        id="front-wall-3"
+        color="green"
+        position="8 0 -12.5" 
+        width="4.5"
+        depth="0.2"
+        height="10"
+        visible="true"
+        opacity="0.8"
+        static-body
+      ></a-box>
+
+      <!-- RED BORDER WALL -->
+      <a-box
+        id="physics-front-wall"
+        color="red"
+        position="0 0 -12.5" 
+        width="30"
+        depth="0.19"
+        height="10"
+        visible="true"
+        opacity="0.8"
+        static-body
+        multi-position-platform="fromPosition: 0 0 -12.5; toPosition: 0 -10 -12.5; duration: 0.1; delayBeforeMoving: 5500; delayBeforeReset: 7400"
+      ></a-box>
+
+      
+      <!-- Train model using asset reference -->
+      <a-gltf-model id="train" position="0 -0.5 -15" rotation="0 180 0" src="#train-model" animation-mixer="clip: *; loop: repeat" train-animation-resetter></a-gltf-model>
+
+
+      <!-- HTML Display Panel - replaced basic text with html-display entity -->
+      <a-entity id="html-display"
+                geometry="primitive: plane; width: 6; height: 6"
+                material="shader: flat; transparent: true; side: double"
+                position="5.8 0.35 0.33"
+                rotation="0 -90 0">
+      </a-entity>
+    </a-scene>
+  </body>
+</html>
