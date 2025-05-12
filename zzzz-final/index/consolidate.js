@@ -59,7 +59,6 @@ AFRAME.registerComponent('position-logger', {
     interval: {type: 'number', default: 500},
     precision: {type: 'number', default: 2},
     logToConsole: {type: 'boolean', default: true},
-    xThreshold: {type: 'number', default: 70}
   },
 
   init: function() {
@@ -80,7 +79,7 @@ AFRAME.registerComponent('position-logger', {
       const x = position.x.toFixed(this.data.precision);
       const y = position.y.toFixed(this.data.precision);
       const z = position.z.toFixed(this.data.precision);
-      console.log(`Position: x:${x} y:${y} z:${z}`);
+      // console.log(`Position: x:${x} y:${y} z:${z}`);
     }
     
     if (position.x >= 30) {
@@ -93,10 +92,6 @@ AFRAME.registerComponent('position-logger', {
     } else {
       playerIsBoarded = false;
       this.hasBoarded = false;
-    }
-    
-    if (position.x >= this.data.xThreshold) {
-      console.log(`PASSED x${this.data.xThreshold}!`);
     }
   }
 });

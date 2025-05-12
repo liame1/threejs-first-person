@@ -1,0 +1,123 @@
+/* Existing CSS resets and common styles */
+/*
+CSS RESETS:
+ Border box reset:
+https://www.paulirish.com/2012/box-sizing-border-box-ftw/
+ 62.5% Fix: https: //www.aleksandrhovhannisyan.com/blog/62-5-percent-font-size-trick/
+*/
+
+html {
+    box-sizing: border-box;
+    font-size: 62.5%;
+}
+    
+*,
+*:before,
+*:after {
+    box-sizing: inherit;
+    margin: 0;
+    padding: 0;
+}
+    
+html, 
+body {
+    height: 100%;
+    font-size: 1.6rem;
+    /* same as 16px using 62.5% fix for rem */
+    line-height: 1.6;
+}
+    
+/* ----- BODY ----- */
+body {
+    background: rgb(255, 234, 202);
+    background-image: linear-gradient( rgb(202, 240, 255), rgba(134, 7, 7, 0.3));
+
+    margin: 0;
+    font-family: "IBM Plex Sans", sans-serif;
+    
+}
+
+/* GRID */
+
+.grid {
+    display: grid;
+    grid-template-columns: auto;
+    grid-template-rows: auto;
+
+}
+
+/* ELSE */
+
+header {
+    font-family: "Varela Round", sans-serif;
+    color: rgb(255, 250, 241);
+
+    text-align: center;
+    justify-content: center;
+    margin: 12% auto 6% auto;
+    padding: 0.5% 4% 0.5% 2%;
+
+    font-size: 2.5rem;
+
+    grid-area: 1 / 1;
+
+    animation: fadeIn 2.5s;
+
+    background-color: 10px 5px 5px rgba(243, 5, 5, 0.2);
+
+
+    border-radius: 1rem;
+    box-shadow: 0 0 2rem rgba(124, 109, 109, 1);
+    /* filter: drop-shadow(0 0 5rem rgba(124, 109, 109, 1)); */
+
+
+}
+
+img {
+    vertical-align: middle;
+}
+
+a {
+    opacity: 0;
+
+    font-size: 1.2rem;
+
+    box-sizing: border-box;
+    text-align: center;
+    justify-content: center;
+
+    text-decoration: none;
+    color: rgba(20, 20, 20, 0.8);
+
+    border: 3px solid;
+    padding: 0 1%;
+    margin: 0 auto;
+    border-radius: 20px;
+
+    grid-area: 2 / 1;
+
+    animation: fadeInBtn 2s linear 1s;
+    animation-fill-mode: forwards;
+}
+
+/* ANIMATIONS */
+@keyframes fadeIn {
+    0% {
+        transform: translateY(-60%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0%);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInBtn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
