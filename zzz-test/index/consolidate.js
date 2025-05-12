@@ -341,7 +341,7 @@ const AnimationManager = {
 };
 
 // ========== TRAIN ANIMATION RESETTER ==========
-AFRAME.registerComponent('train-animation-resetter', {
+AFRAME.registerComponent('glb-animation-resetter', {
   init: function() {
     this.mixer = null;
     this.actions = [];
